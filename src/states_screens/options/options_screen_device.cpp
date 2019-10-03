@@ -271,10 +271,14 @@ void OptionsScreenDevice::updateInputButtons()
     //I18N: Key binding name
 <<<<<<< HEAD
     renameRow(actions, i++, _("Brake / Reverse"), PA_BRAKE);
+<<<<<<< HEAD
 =======
     renameRow(actions, i++, _("Brake/Reverse"), PA_BRAKE);
 >>>>>>> Repair Issue #3858 (Brake/Reverse on command settings)
 
+=======
+    
+>>>>>>> Repair Issue #3858 (Brake/Reverse on command settings)
     //I18N: Key binding name
     renameRow(actions, i++, _("Fire"), PA_FIRE);
 
