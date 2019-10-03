@@ -200,7 +200,7 @@ void OptionsScreenDevice::init()
 
     // Disable deleting or disabling configuration mid-race
     bool in_game = StateManager::get()->getGameState() == GUIEngine::INGAME_MENU;
-    
+
     if (in_game)
     {
         delete_button->setActive(false);
@@ -270,7 +270,7 @@ void OptionsScreenDevice::updateInputButtons()
 
     //I18N: Key binding name
     renameRow(actions, i++, _("Brake / Reverse"), PA_BRAKE);
-
+    
     //I18N: Key binding name
     renameRow(actions, i++, _("Fire"), PA_FIRE);
 
@@ -394,7 +394,7 @@ void OptionsScreenDevice::updateInputButtons()
 
         }   // if existing key
     }   // for action <= PA_LAST_MENU_ACTION;
-    
+
 
     GUIEngine::Widget* conflict_label =
         getWidget<GUIEngine::LabelWidget>("conflict");
