@@ -5212,8 +5212,13 @@ msgstr "Acelerar"
 
 #. I18N: Key binding name
 #: src/states_screens/options/options_screen_device.cpp:272
+<<<<<<< HEAD
 msgid "Brake / Reverse"
 msgstr "Travar / Marcha Atrás"
+=======
+msgid "Brake/Reverse"
+msgstr "Travão"
+>>>>>>> git commit issue#4070 : Brake/Reverse (French and English)
 
 #. I18N: Key binding name
 #: src/states_screens/options/options_screen_device.cpp:275

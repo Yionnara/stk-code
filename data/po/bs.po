@@ -5215,8 +5215,13 @@ msgstr "Ubrzaj"
 
 #. I18N: Key binding name
 #: src/states_screens/options/options_screen_device.cpp:272
+<<<<<<< HEAD
 msgid "Brake / Reverse"
 msgstr ""
+=======
+msgid "Brake/Reverse"
+msgstr "Koči"
+>>>>>>> git commit issue#4070 : Brake/Reverse (French and English)
 
 #. I18N: Key binding name
 #: src/states_screens/options/options_screen_device.cpp:275

@@ -1,7 +1,7 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the supertuxkart package.
-# 
+#
 # Translators:
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2013
 msgid ""
@@ -5205,7 +5205,11 @@ msgstr ""
 
 #. I18N: Key binding name
 #: src/states_screens/options/options_screen_device.cpp:272
+<<<<<<< HEAD
 msgid "Brake / Reverse"
+=======
+msgid "Brake/Reverse"
+>>>>>>> git commit issue#4070 : Brake/Reverse (French and English)
 msgstr ""
 
 #. I18N: Key binding name
