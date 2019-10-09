@@ -270,7 +270,7 @@ void OptionsScreenDevice::updateInputButtons()
 
     //I18N: Key binding name
     renameRow(actions, i++, _("Brake / Reverse"), PA_BRAKE);
-    
+
     //I18N: Key binding name
     renameRow(actions, i++, _("Fire"), PA_FIRE);
 
