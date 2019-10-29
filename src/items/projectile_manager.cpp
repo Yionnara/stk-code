@@ -261,6 +261,7 @@ std::string ProjectileManager::getUniqueIdentity(AbstractKart* kart,
             uid.addUInt8(RN_RUBBERBALL);
             break;
         }
+
         default:
             assert(false);
             return "";
@@ -329,4 +330,3 @@ std::shared_ptr<Rewinder>
     m_active_projectiles[uid] = f;
     return f;
 }   // addProjectileFromNetworkState
-

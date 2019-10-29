@@ -1,0 +1,2 @@
+/usr/bin/ar qc libgraphics_utils.a  CMakeFiles/graphics_utils.dir/mipmap/cpusimd.c.o CMakeFiles/graphics_utils.dir/mipmap/imgresize.c.o
+/usr/bin/ranlib libgraphics_utils.a

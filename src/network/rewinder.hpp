@@ -119,4 +119,3 @@ public:
 
 };   // Rewinder
 #endif
-

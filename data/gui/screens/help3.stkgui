@@ -87,6 +87,12 @@
                      <bubble proportion="1" height="100%" text="Swatter - will squash karts close by, slowing them down. Can also be used to remove parachutes and bombs."/>
                 </div>
 
+                <div width="100%" proportion="1" layout="horizontal-row">
+                     <icon align="center" width="64" height="64" icon="models/flour-icon.png"/>
+                     <spacer width="25" height="25"/>
+                     <bubble proportion="1" height="100%" text="Flour - blury the vision of all the karts with better class."/>
+                </div>
+
             </box>
         </div>
     </div>

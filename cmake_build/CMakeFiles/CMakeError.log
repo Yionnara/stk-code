@@ -1,0 +1,106 @@
+Determining if the pthread_create exist failed with the following output:
+Change Dir: /net/travail/ahadjlazib/SuperTuxKart1.0/stk-code/cmake_build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_bcda6/fast"
+/usr/bin/make -f CMakeFiles/cmTC_bcda6.dir/build.make CMakeFiles/cmTC_bcda6.dir/build
+make[1] : on entre dans le répertoire « /autofs/unitytravail/travail/ahadjlazib/SuperTuxKart1.0/stk-code/cmake_build/CMakeFiles/CMakeTmp »
+Building C object CMakeFiles/cmTC_bcda6.dir/CheckSymbolExists.c.o
+/usr/bin/cc     -o CMakeFiles/cmTC_bcda6.dir/CheckSymbolExists.c.o   -c /net/travail/ahadjlazib/SuperTuxKart1.0/stk-code/cmake_build/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_bcda6
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_bcda6.dir/link.txt --verbose=1
+/usr/bin/cc       CMakeFiles/cmTC_bcda6.dir/CheckSymbolExists.c.o  -o cmTC_bcda6 -rdynamic 
+CMakeFiles/cmTC_bcda6.dir/CheckSymbolExists.c.o : Dans la fonction « main » :
+CheckSymbolExists.c:(.text+0x1b) : référence indéfinie vers « pthread_create »
+collect2: error: ld returned 1 exit status
+CMakeFiles/cmTC_bcda6.dir/build.make:97 : la recette pour la cible « cmTC_bcda6 » a échouée
+make[1]: *** [cmTC_bcda6] Erreur 1
+make[1] : on quitte le répertoire « /autofs/unitytravail/travail/ahadjlazib/SuperTuxKart1.0/stk-code/cmake_build/CMakeFiles/CMakeTmp »
+Makefile:126 : la recette pour la cible « cmTC_bcda6/fast » a échouée
+make: *** [cmTC_bcda6/fast] Erreur 2
+
+File /net/travail/ahadjlazib/SuperTuxKart1.0/stk-code/cmake_build/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <pthread.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef pthread_create
+  return ((int*)(&pthread_create))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+
+Determining if the function pthread_create exists in the pthreads failed with the following output:
+Change Dir: /net/travail/ahadjlazib/SuperTuxKart1.0/stk-code/cmake_build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_7b77b/fast"
+/usr/bin/make -f CMakeFiles/cmTC_7b77b.dir/build.make CMakeFiles/cmTC_7b77b.dir/build
+make[1] : on entre dans le répertoire « /autofs/unitytravail/travail/ahadjlazib/SuperTuxKart1.0/stk-code/cmake_build/CMakeFiles/CMakeTmp »
+Building C object CMakeFiles/cmTC_7b77b.dir/CheckFunctionExists.c.o
+/usr/bin/cc    -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTC_7b77b.dir/CheckFunctionExists.c.o   -c /usr/share/cmake-3.7/Modules/CheckFunctionExists.c
+Linking C executable cmTC_7b77b
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_7b77b.dir/link.txt --verbose=1
+/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create    CMakeFiles/cmTC_7b77b.dir/CheckFunctionExists.c.o  -o cmTC_7b77b -rdynamic -lpthreads 
+/usr/bin/ld : ne peut trouver -lpthreads
+collect2: error: ld returned 1 exit status
+CMakeFiles/cmTC_7b77b.dir/build.make:97 : la recette pour la cible « cmTC_7b77b » a échouée
+make[1]: *** [cmTC_7b77b] Erreur 1
+make[1] : on quitte le répertoire « /autofs/unitytravail/travail/ahadjlazib/SuperTuxKart1.0/stk-code/cmake_build/CMakeFiles/CMakeTmp »
+Makefile:126 : la recette pour la cible « cmTC_7b77b/fast » a échouée
+make: *** [cmTC_7b77b/fast] Erreur 2
+
+
+Determining if the function hb_buffer_set_invisible_glyph exists failed with the following output:
+Change Dir: /net/travail/ahadjlazib/SuperTuxKart1.0/stk-code/cmake_build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_dd3bb/fast"
+/usr/bin/make -f CMakeFiles/cmTC_dd3bb.dir/build.make CMakeFiles/cmTC_dd3bb.dir/build
+make[1] : on entre dans le répertoire « /autofs/unitytravail/travail/ahadjlazib/SuperTuxKart1.0/stk-code/cmake_build/CMakeFiles/CMakeTmp »
+Building C object CMakeFiles/cmTC_dd3bb.dir/CheckFunctionExists.c.o
+/usr/bin/cc    -std=c99 -DCHECK_FUNCTION_EXISTS=hb_buffer_set_invisible_glyph   -o CMakeFiles/cmTC_dd3bb.dir/CheckFunctionExists.c.o   -c /usr/share/cmake-3.7/Modules/CheckFunctionExists.c
+Linking C executable cmTC_dd3bb
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_dd3bb.dir/link.txt --verbose=1
+/usr/bin/cc   -std=c99 -DCHECK_FUNCTION_EXISTS=hb_buffer_set_invisible_glyph    CMakeFiles/cmTC_dd3bb.dir/CheckFunctionExists.c.o  -o cmTC_dd3bb -rdynamic /usr/lib/x86_64-linux-gnu/libharfbuzz.so 
+CMakeFiles/cmTC_dd3bb.dir/CheckFunctionExists.c.o : Dans la fonction « main » :
+CheckFunctionExists.c:(.text+0x15) : référence indéfinie vers « hb_buffer_set_invisible_glyph »
+collect2: error: ld returned 1 exit status
+CMakeFiles/cmTC_dd3bb.dir/build.make:98 : la recette pour la cible « cmTC_dd3bb » a échouée
+make[1]: *** [cmTC_dd3bb] Erreur 1
+make[1] : on quitte le répertoire « /autofs/unitytravail/travail/ahadjlazib/SuperTuxKart1.0/stk-code/cmake_build/CMakeFiles/CMakeTmp »
+Makefile:126 : la recette pour la cible « cmTC_dd3bb/fast » a échouée
+make: *** [cmTC_dd3bb/fast] Erreur 2
+
+
+Performing C SOURCE FILE Test HAVE_DECL_HB_BUFFER_FLAG_REMOVE_DEFAULT_IGNORABLES failed with the following output:
+Change Dir: /net/travail/ahadjlazib/SuperTuxKart1.0/stk-code/cmake_build/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/make" "cmTC_1422b/fast"
+/usr/bin/make -f CMakeFiles/cmTC_1422b.dir/build.make CMakeFiles/cmTC_1422b.dir/build
+make[1] : on entre dans le répertoire « /autofs/unitytravail/travail/ahadjlazib/SuperTuxKart1.0/stk-code/cmake_build/CMakeFiles/CMakeTmp »
+Building C object CMakeFiles/cmTC_1422b.dir/src.c.o
+/usr/bin/cc    -std=c99 -DHAVE_DECL_HB_BUFFER_FLAG_REMOVE_DEFAULT_IGNORABLES   -o CMakeFiles/cmTC_1422b.dir/src.c.o   -c /net/travail/ahadjlazib/SuperTuxKart1.0/stk-code/cmake_build/CMakeFiles/CMakeTmp/src.c
+/net/travail/ahadjlazib/SuperTuxKart1.0/stk-code/cmake_build/CMakeFiles/CMakeTmp/src.c: In function ‘main’:
+/net/travail/ahadjlazib/SuperTuxKart1.0/stk-code/cmake_build/CMakeFiles/CMakeTmp/src.c:6:11: error: ‘HB_BUFFER_FLAG_REMOVE_DEFAULT_IGNORABLES’ undeclared (first use in this function)
+     (void)HB_BUFFER_FLAG_REMOVE_DEFAULT_IGNORABLES;
+           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/net/travail/ahadjlazib/SuperTuxKart1.0/stk-code/cmake_build/CMakeFiles/CMakeTmp/src.c:6:11: note: each undeclared identifier is reported only once for each function it appears in
+CMakeFiles/cmTC_1422b.dir/build.make:65 : la recette pour la cible « CMakeFiles/cmTC_1422b.dir/src.c.o » a échouée
+make[1]: *** [CMakeFiles/cmTC_1422b.dir/src.c.o] Erreur 1
+make[1] : on quitte le répertoire « /autofs/unitytravail/travail/ahadjlazib/SuperTuxKart1.0/stk-code/cmake_build/CMakeFiles/CMakeTmp »
+Makefile:126 : la recette pour la cible « cmTC_1422b/fast » a échouée
+make: *** [cmTC_1422b/fast] Erreur 2
+
+Source file was:
+
+#include <harfbuzz/hb.h>
+int main ()
+{
+#ifndef HB_BUFFER_FLAG_REMOVE_DEFAULT_IGNORABLES
+    (void)HB_BUFFER_FLAG_REMOVE_DEFAULT_IGNORABLES;
+#endif
+    return 0;
+}
+

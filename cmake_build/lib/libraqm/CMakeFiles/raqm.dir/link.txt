@@ -1,0 +1,2 @@
+/usr/bin/ar qc libraqm.a  CMakeFiles/raqm.dir/raqm.c.o
+/usr/bin/ranlib libraqm.a

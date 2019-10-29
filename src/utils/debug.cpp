@@ -104,6 +104,7 @@ enum DebugMenuCommand
     DEBUG_POWERUP_BOWLING,
     DEBUG_POWERUP_BUBBLEGUM,
     DEBUG_POWERUP_CAKE,
+    DEBUG_POWERUP_FLOUR,
     DEBUG_POWERUP_PARACHUTE,
     DEBUG_POWERUP_PLUNGER,
     DEBUG_POWERUP_RUBBERBALL,
@@ -174,7 +175,7 @@ void addAttachment(Attachment::AttachmentType type)
         if (type == Attachment::ATTACH_ANVIL)
         {
             kart->getAttachment()
-                ->set(type, 
+                ->set(type,
                       stk_config->time2Ticks(kart->getKartProperties()
                                                  ->getAnvilDuration()) );
             kart->adjustSpeed(kart->getKartProperties()->getAnvilSpeedFactor());
@@ -495,6 +496,9 @@ bool handleContextMenuAction(s32 cmd_id)
         break;
     case DEBUG_POWERUP_CAKE:
         addPowerup(PowerupManager::POWERUP_CAKE);
+        break;
+    case DEBUG_POWERUP_FLOUR:
+        addPowerup(PowerupManager::POWERUP_FLOUR);
         break;
     case DEBUG_POWERUP_PARACHUTE:
         addPowerup(PowerupManager::POWERUP_PARACHUTE);
@@ -879,7 +883,7 @@ bool onEvent(const SEvent &event)
         if (GUIEngine::ModalDialog::isADialogActive() ||
             GUIEngine::ScreenKeyboard::isActive())
             return true;
-            
+
         // Create the menu (only one menu at a time)
         #ifdef MOBILE_STK
         int x = 10 * irr_driver->getActualScreenSize().Height / 480;
@@ -915,6 +919,7 @@ bool onEvent(const SEvent &event)
             sub->addItem(L"Bowling", DEBUG_POWERUP_BOWLING );
             sub->addItem(L"Bubblegum", DEBUG_POWERUP_BUBBLEGUM );
             sub->addItem(L"Cake", DEBUG_POWERUP_CAKE );
+            sub->addItem(L"Cake", DEBUG_POWERUP_FLOUR );
             sub->addItem(L"Parachute", DEBUG_POWERUP_PARACHUTE );
             sub->addItem(L"Plunger", DEBUG_POWERUP_PLUNGER );
             sub->addItem(L"Swatter", DEBUG_POWERUP_SWATTER );
@@ -1031,9 +1036,9 @@ bool onEvent(const SEvent &event)
             return false;
         }
     }
-    
+
     // continue event handling if menu is not opened
-    return !g_debug_menu_visible;    
+    return !g_debug_menu_visible;
 }   // onEvent
 
 // ----------------------------------------------------------------------------

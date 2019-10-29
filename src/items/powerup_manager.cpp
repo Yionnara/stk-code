@@ -70,7 +70,7 @@ PowerupManager::~PowerupManager()
                 irr_driver->removeMeshFromCache(mesh);
         }
     }
-    
+
     for(auto key: m_all_weights)
     {
         for(auto p: key.second )
@@ -105,7 +105,7 @@ PowerupManager::PowerupType
     // Must match the order of PowerupType in powerup_manager.hpp!!
     static std::string powerup_names[] = {
         "",            /* Nothing */
-        "bubblegum", "cake", "bowling", "zipper", "plunger", "switch",
+        "bubblegum", "cake", "flour", "bowling", "zipper", "plunger", "switch",
         "swatter", "rubber-ball", "parachute", "anchor"
     };
 
@@ -141,7 +141,7 @@ void PowerupManager::loadPowerupsModels()
             exit(-1);
         }
     }
-    
+
     loadWeights(root, "race-weight-list"    );
     loadWeights(root, "ftl-weight-list"     );
     loadWeights(root, "battle-weight-list"  );
@@ -321,7 +321,7 @@ void PowerupManager::WeightsData::convertRankToSection(int rank, int *prev,
         return;
     }
 
-    // In FTL mode the first section is for the leader, the 
+    // In FTL mode the first section is for the leader, the
     // second section is used for the first non-leader kart.
     if (race_manager->isFollowMode() && rank == 2)
     {
@@ -441,7 +441,7 @@ int PowerupManager::WeightsData::getRandomItem(int rank, uint64_t random_number)
 
 // ============================================================================
 /** Loads the data for one particular powerup. For bowling ball, plunger, and
- *  cake static members in the appropriate classes are called to store
+ *  Flourstatic members in the appropriate classes are called to store
  *  additional information for those objects.
  *  \param type The type of the powerup.
  *  \param node The XML node with the data for this powerup.
@@ -604,11 +604,11 @@ PowerupManager::PowerupType PowerupManager::getRandomPowerup(unsigned int pos,
         *n=1;
 
     // Prevents early explosive items
-    if (World::getWorld() && 
+    if (World::getWorld() &&
         stk_config->ticks2Time(World::getWorld()->getTicksSinceStart()) <
                                       stk_config->m_no_explosive_items_timeout)
     {
-        if (powerup == POWERUP_CAKE || powerup == POWERUP_RUBBERBALL)
+        if (powerup == POWERUP_CAKE|| powerup == POWERUP_RUBBERBALL)
             powerup = POWERUP_BOWLING;
     }
     return (PowerupType)powerup;

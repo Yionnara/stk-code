@@ -88,7 +88,7 @@ void Powerup::saveState(BareNetworkString *buffer) const
  */
 void Powerup::rewindTo(BareNetworkString *buffer)
 {
-    PowerupManager::PowerupType new_type = 
+    PowerupManager::PowerupType new_type =
         PowerupManager::PowerupType(buffer->getUInt8());
     int n=0;
     if(new_type==PowerupManager::POWERUP_NOTHING)
@@ -165,6 +165,9 @@ void Powerup::set(PowerupManager::PowerupType type, int n)
         case PowerupManager::POWERUP_ZIPPER:
             break ;
 
+        case PowerupManager::POWERUP_FLOUR:
+            break ;
+
         case PowerupManager::POWERUP_BOWLING:
             m_sound_use = SFXManager::get()->createSoundSource("bowling_shoot");
             break ;
@@ -224,7 +227,7 @@ void Powerup::adjustSound()
         }
         else
         {
-            m_sound_use->setVolume( 
+            m_sound_use->setVolume(
                      std::min(0.5f, 1.0f / race_manager->getNumberOfKarts()) );
         }
     }
@@ -283,6 +286,9 @@ void Powerup::use()
             }
             break;
         }
+    case PowerupManager::POWERUP_FLOUR:
+        m_kart->handleZipper(NULL, true);
+        break ;
     case PowerupManager::POWERUP_CAKE:
     case PowerupManager::POWERUP_RUBBERBALL:
     case PowerupManager::POWERUP_BOWLING:
@@ -307,7 +313,7 @@ void Powerup::use()
         // use the bubble gum the traditional way, if the kart is looking back
         if (m_kart->getControls().getLookBack())
         {
-            Item *new_item = 
+            Item *new_item =
                 ItemManager::get()->dropNewItem(Item::ITEM_BUBBLEGUM, m_kart);
 
             // E.g. ground not found in raycast.
@@ -436,12 +442,12 @@ void Powerup::use()
                     {
                         float rank_factor;
 
-                        rank_factor = (float)(kart->getPosition()   - 1) 
+                        rank_factor = (float)(kart->getPosition()   - 1)
                                     / (float)(m_kart->getPosition() - 2);
                         position_factor = 1.0f - rank_factor;
                     }
 
-                    rank_mult = 1 + (position_factor * 
+                    rank_mult = 1 + (position_factor *
                                      (kp->getParachuteDurationRankMult() - 1));
 
                     kart->getAttachment()
@@ -507,7 +513,7 @@ void Powerup::hitBonusBox(const ItemState &item_state)
     // Determine a 'random' number based on time, index of the item,
     // and position of the kart. The idea is that this process is
     // randomly enough to get the right distribution of the powerups,
-    // does not involve additional network communication to keep 
+    // does not involve additional network communication to keep
     // client and server in sync, and is not exploitable:
     // While it is not possible for a client to determine the item
     // (the server will always finally determine which item a player
@@ -526,7 +532,7 @@ void Powerup::hitBonusBox(const ItemState &item_state)
     // (4) An extra random 64bit integer
     // Using (1) means that not all boxes at a certain time for a kart
     // will give the same box. Using (2) means that the item will
-    // change over time - even if the next item is displayed, it 
+    // change over time - even if the next item is displayed, it
     // will mean a cheater has to wait, and because of the frequency
     // of the time component it will also be difficult to get the
     // item at the right time. Using (3) adds another cheat-prevention
@@ -546,9 +552,9 @@ void Powerup::hitBonusBox(const ItemState &item_state)
         world->getTicksSinceStart() / 10 + position * 23 +
         powerup_manager->getRandomSeed();
 
-    // Use this random number as a seed of a PRNG (based on the one in 
+    // Use this random number as a seed of a PRNG (based on the one in
     // bullet's btSequentialImpulseConstraintSolver) to avoid getting
-    // consecutive numbers. Without this the same item could be 
+    // consecutive numbers. Without this the same item could be
     // produced for a longer period of time, which would make this
     // exploitable: someone could hack STK to display the item that
     // can be collected for each box, and the pick the one with the
@@ -559,7 +565,7 @@ void Powerup::hitBonusBox(const ItemState &item_state)
     random_number ^= (random_number >> 16);
     random_number ^= (random_number >> 8);
 
-    new_powerup = powerup_manager->getRandomPowerup(position, &n, 
+    new_powerup = powerup_manager->getRandomPowerup(position, &n,
                                                     random_number);
 
     // Always add a new powerup in ITEM_MODE_NEW (or if the kart

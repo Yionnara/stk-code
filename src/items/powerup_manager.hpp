@@ -131,7 +131,7 @@ public:
     enum PowerupType {POWERUP_NOTHING,
                       POWERUP_FIRST,
                       POWERUP_BUBBLEGUM = POWERUP_FIRST,
-                      POWERUP_CAKE,
+                      POWERUP_CAKE, POWERUP_FLOUR,
                       POWERUP_BOWLING, POWERUP_ZIPPER, POWERUP_PLUNGER,
                       POWERUP_SWITCH, POWERUP_SWATTER, POWERUP_RUBBERBALL,
                       POWERUP_PARACHUTE,
