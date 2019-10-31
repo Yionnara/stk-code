@@ -17,7 +17,8 @@
 //  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "items/powerup.hpp"
-
+#include "items/flyable.hpp"
+#include "io/xml_node.hpp"
 #include "audio/sfx_base.hpp"
 #include "audio/sfx_manager.hpp"
 #include "config/player_manager.hpp"
@@ -35,6 +36,8 @@
 #include "network/rewind_manager.hpp"
 #include "physics/triangle_mesh.hpp"
 #include "tracks/track.hpp"
+#include "utils/constants.hpp"
+#include "utils/random_generator.hpp"
 #include "utils/string_utils.hpp"
 #include "utils/log.hpp" //TODO: remove after debugging is done
 
@@ -166,6 +169,7 @@ void Powerup::set(PowerupManager::PowerupType type, int n)
             break ;
 
         case PowerupManager::POWERUP_FLOUR:
+            m_sound_use = SFXManager::get()->createSoundSource("parachute");//Flour type
             break ;
 
         case PowerupManager::POWERUP_BOWLING:
@@ -286,9 +290,6 @@ void Powerup::use()
             }
             break;
         }
-    case PowerupManager::POWERUP_FLOUR:
-        m_kart->handleZipper(NULL, true);
-        break ;
     case PowerupManager::POWERUP_CAKE:
     case PowerupManager::POWERUP_RUBBERBALL:
     case PowerupManager::POWERUP_BOWLING:
@@ -414,6 +415,52 @@ void Powerup::use()
         }
 
         break;
+
+    case PowerupManager::POWERUP_FLOUR:
+    {
+        AbstractKart* player_kart = NULL;
+        //Attach a parachute(that last 1,3 time as long as the
+        //one from the bananas and is affected by the rank multiplier)
+        //to all the karts that are in front of this one.
+        for(unsigned int i = 0 ; i < world->getNumKarts(); ++i)
+        {
+            AbstractKart *kart=world->getKart(i);
+            if(kart->isEliminated() || kart== m_kart || kart->isInvulnerable()) continue;
+            if(kart->isShielded())
+            {
+                kart->decreaseShieldTime();
+                continue;
+            }
+            if(m_kart->getPosition() > kart->getPosition())
+            {
+                float rank_mult, position_factor;
+                //0 if the one before the item user ; 1 if first ; scaled inbetween
+                if (kart->getPosition() == 1)
+                {
+                    position_factor = 1.0f;
+                }
+                else //m_kart position is always >= 3
+                {
+                    float rank_factor;
+
+                    rank_factor = (float)(kart->getPosition()   - 1)
+                                / (float)(m_kart->getPosition() - 2);
+                    position_factor = 1.0f - rank_factor;
+                }
+
+                rank_mult = 1 + (position_factor *
+                                 (kp->getParachuteDurationRankMult() - 1));
+
+                kart->getAttachment()
+                    ->set(Attachment::ATTACH_FLOUR,
+                          int(kp->getParachuteDurationOther()*rank_mult) );
+
+                if(kart->getController()->isLocalPlayerController())
+                    player_kart = kart;
+            }
+        }
+    }
+            break;
 
     case PowerupManager::POWERUP_PARACHUTE:
         {

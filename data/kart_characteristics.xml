@@ -271,7 +271,7 @@
                  band-speed-increase="7" band-fade-out-time="3"
                  in-face-time="4.5" />
 
-        <flour duration="3" fade-out-time="1.0"/>
+        <flour duration="3" duration-other="2.5"/>
 
 
         <!-- ********** Miscellaneous ********** -->

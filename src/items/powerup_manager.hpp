@@ -138,7 +138,7 @@ public:
                       POWERUP_ANVIL,      //powerup.cpp assumes these two come last
                       POWERUP_LAST=POWERUP_ANVIL,
                       POWERUP_MAX
-    };
+    };//enum
 
 private:
 

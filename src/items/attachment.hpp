@@ -65,6 +65,7 @@ public:
         ATTACH_BOMB = 2,
         // End of fixed order attachments, the rest can be changed.
         ATTACH_SWATTER,
+        ATTACH_FLOUR,
         // Note that the next 2 symbols are only used as an index into the mesh
         // array; it will NEVER be actually assigned as an attachment type
         ATTACH_NOLOKS_SWATTER,
@@ -134,7 +135,7 @@ public:
     /** Returns the type of this attachment. */
     AttachmentType getType() const { return m_type; }
     // ------------------------------------------------------------------------
-    /** Returns how much time (in ticks) is left before this attachment is 
+    /** Returns how much time (in ticks) is left before this attachment is
      *  removed. */
     int16_t getTicksLeft() const                       { return m_ticks_left; }
     // ------------------------------------------------------------------------
