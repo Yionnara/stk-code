@@ -90,7 +90,7 @@
                 <div width="100%" proportion="1" layout="horizontal-row">
                      <icon align="center" width="64" height="64" icon="models/flour-icon.png"/>
                      <spacer width="25" height="25"/>
-                     <bubble proportion="1" height="100%" text="Flour - parachute attachment."/>
+                     <bubble proportion="1" height="100%" text="Flour - ( Blury the vision ) but for now parachute attachment."/>
                 </div>
 
             </box>

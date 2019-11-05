@@ -270,7 +270,8 @@
         <plunger band-max-length="50" band-force="1500" band-duration="1"
                  band-speed-increase="7" band-fade-out-time="3"
                  in-face-time="4.5" />
-
+                 
+                    <!-- new powerup-->
         <flour duration="3" duration-other="2.5"/>
 
 

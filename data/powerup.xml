@@ -226,7 +226,7 @@
     <weights num-karts="1">
       <!--              bubble  cake   flour  bowl  zipper  plunger  switch swattr rubber para  anvil -->
       <!-- This is the entry for the leader: -->
-      <weight single  ="35       0    0        25    35         25       15      25     0     0     0"
+      <weight single  ="35       0   10        25    35         25       15      25     0     0     0"
               multi   ="20       0    0        0    20           0        0       0     0     0     0" />
       <!-- This is the entry for the first non-leader karts: -->
       <weight single  ="25       0    0       60    25          58        2      30     0     0     0"

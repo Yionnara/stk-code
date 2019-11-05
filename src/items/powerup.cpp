@@ -416,6 +416,7 @@ void Powerup::use()
 
         break;
 
+//new power up
     case PowerupManager::POWERUP_FLOUR:
     {
         AbstractKart* player_kart = NULL;

@@ -104,7 +104,7 @@ PowerupManager::PowerupType
 {
     // Must match the order of PowerupType in powerup_manager.hpp!!
     static std::string powerup_names[] = {
-        "",              /* Nothing */
+        "",                /* Nothing */
         "bubblegum", "cake", "flour", "bowling", "zipper", "plunger", "switch",
         "swatter", "rubber-ball", "parachute", "anchor"
     };
@@ -441,7 +441,7 @@ int PowerupManager::WeightsData::getRandomItem(int rank, uint64_t random_number)
 
 // ============================================================================
 /** Loads the data for one particular powerup. For bowling ball, plunger, and
- *  Flourstatic members in the appropriate classes are called to store
+ *  static members in the appropriate classes are called to store
  *  additional information for those objects.
  *  \param type The type of the powerup.
  *  \param node The XML node with the data for this powerup.
