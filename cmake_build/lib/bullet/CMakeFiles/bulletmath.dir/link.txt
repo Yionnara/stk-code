@@ -1,2 +1,0 @@
-/usr/bin/ar qc libbulletmath.a  CMakeFiles/bulletmath.dir/src/LinearMath/btAlignedAllocator.cpp.o CMakeFiles/bulletmath.dir/src/LinearMath/btConvexHull.cpp.o CMakeFiles/bulletmath.dir/src/LinearMath/btQuickprof.cpp.o CMakeFiles/bulletmath.dir/src/LinearMath/btConvexHullComputer.cpp.o CMakeFiles/bulletmath.dir/src/LinearMath/btGeometryUtil.cpp.o CMakeFiles/bulletmath.dir/src/LinearMath/btSerializer.cpp.o
-/usr/bin/ranlib libbulletmath.a
