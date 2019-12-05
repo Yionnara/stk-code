@@ -176,6 +176,7 @@
 #include "addons/news_manager.hpp"
 #include "audio/music_manager.hpp"
 #include "audio/sfx_manager.hpp"
+#include "challenges/story_mode_timer.hpp"
 #include "challenges/unlock_manager.hpp"
 #include "config/hardware_stats.hpp"
 #include "config/player_manager.hpp"
@@ -207,7 +208,8 @@
 #include "items/powerup_manager.hpp"
 #include "items/projectile_manager.hpp"
 #include "karts/combined_characteristic.hpp"
-#include "karts/controller/ai_base_lap_controller.hpp"
+#include "karts/controller/ai_base_controller.hpp"
+#include "karts/controller/network_ai_controller.hpp"
 #include "karts/kart_model.hpp"
 #include "karts/kart_properties.hpp"
 #include "karts/kart_properties_manager.hpp"
@@ -609,7 +611,7 @@ void cmdLineHelp()
     "       --wan-server=name  Start a Wan server (not a playing client).\n"
     "       --public-server    Allow direct connection to the server (without stk server)\n"
     "       --lan-server=name  Start a LAN server (not a playing client).\n"
-    "       --server-password= Sets a password for a server (both client&server).\n"
+    "       --server-password= Sets a password for a server (both client and server).\n"
     "       --connect-now=ip   Connect to a server with IP known now\n"
     "                          (in format x.x.x.x:xxx(port)), the port should be its\n"
     "                          public port.\n"
@@ -624,9 +626,9 @@ void cmdLineHelp()
     "       --init-user        Save the above login and password (if set) in config.\n"
     "       --disable-polling  Don't poll for logged in user.\n"
     "       --port=n           Port number to use.\n"
-    "       --auto-connect     Automatically connect to fist server and start race\n"
+    "       --auto-connect     Automatically connect to first server and start race\n"
     "       --max-players=n    Maximum number of clients (server only).\n"
-    "       --min-players=n    Minimum number of clients for owner less server(server only).\n"
+    "       --min-players=n    Minimum number of clients for ownerless server(server only).\n"
     "       --motd             Message showing in all lobby of clients, can specify a .txt file.\n"
     "       --auto-end         Automatically end network game after 1st player finished\n"
     "                          for some time (currently his finished time * 0.25 + 15.0). \n"
@@ -639,8 +641,8 @@ void cmdLineHelp()
     "       --ranked           Server will submit ranking to stk addons server.\n"
     "       --no-ranked        Server will not submit ranking to stk addons server.\n"
     "                          You require permission for that.\n"
-    "       --owner-less       Race will auto start and no one can kick players in server.\n"
-    "       --no-owner-less    Race will not auto start and server owner can kick players in server.\n"
+    "       --owner-less       Race will autostart and no one can kick players in server.\n"
+    "       --no-owner-less    Race will not autostart and server owner can kick players in server.\n"
     "       --firewalled-server Turn on all stun related code in server.\n"
     "       --no-firewalled-server Turn off all stun related code in server.\n"
     "       --connection-debug Print verbose info for sending or receiving packets.\n"
@@ -679,8 +681,8 @@ void cmdLineHelp()
     "       --disable-ibl      Disable image based lighting.\n"
     "       --enable-hd-textures Enable high definition textures.\n"
     "       --disable-hd-textures Disable high definition textures.\n"
-    "       --enable-dynamic-lights Enable advanced pipline.\n"
-    "       --disable-dynamic-lights Disable advanced pipline.\n"
+    "       --enable-dynamic-lights Enable advanced pipeline.\n"
+    "       --disable-dynamic-lights Disable advanced pipeline.\n"
     "       --anisotropic=n     Anisotropic filtering quality (0 to disable).\n"
     "                           Takes precedence over trilinear or bilinear\n"
     "                           texture filtering.\n"
@@ -1070,10 +1072,19 @@ int handleCmdLine(bool has_server_config, bool has_parent_process)
         }
         irr::core::stringw s;
         PlayerManager::requestSignIn(login, password);
+        uint64_t started_time = StkTime::getMonoTimeMs();
         while (PlayerManager::getCurrentOnlineState() != PlayerProfile::OS_SIGNED_IN)
         {
             Online::RequestManager::get()->update(0.0f);
             StkTime::sleep(1);
+            if (StkTime::getMonoTimeMs() > started_time + 20000)
+            {
+                Log::error("Main",
+                    "Timed out trying login, check login info or connection "
+                    "to stk addons.");
+                cleanSuperTuxKart();
+                return false;
+            }
         }
         Log::info("Main", "Logged in from command-line.");
         if (init_user)
@@ -1086,6 +1097,11 @@ int handleCmdLine(bool has_server_config, bool has_parent_process)
         cleanSuperTuxKart();
         return false;
     }
+
+    if (CommandLine::has( "--network-ai-freq", &n))
+        NetworkAIController::setAIFrequency(n);
+    else
+        NetworkAIController::setAIFrequency(30);
 
     if (!can_wan && CommandLine::has("--login-id", &n) &&
         CommandLine::has("--token", &s))
@@ -1312,11 +1328,20 @@ int handleCmdLine(bool has_server_config, bool has_parent_process)
         if (!can_wan && player && player->wasOnlineLastTime() &&
             player->wasOnlineLastTime() && player->hasSavedSession())
         {
+            uint64_t started_time = StkTime::getMonoTimeMs();
             while (PlayerManager::getCurrentOnlineState() !=
                 PlayerProfile::OS_SIGNED_IN)
             {
                 Online::RequestManager::get()->update(0.0f);
                 StkTime::sleep(1);
+                if (StkTime::getMonoTimeMs() > started_time + 20000)
+                {
+                    Log::error("Main",
+                        "Timed out trying to login saved session, check "
+                        "connection to stk addons or rerun --init-user.");
+                    cleanSuperTuxKart();
+                    return false;
+                }
             }
             can_wan = true;
         }
@@ -1344,20 +1369,22 @@ int handleCmdLine(bool has_server_config, bool has_parent_process)
         NetworkConfig::get()->setIsServer(false);
         if (CommandLine::has("--network-ai", &n))
         {
+            // We need an existing current player
+            PlayerManager::get()->enforceCurrentPlayer();
             NetworkConfig::get()->setNetworkAITester(true);
             PlayerManager::get()->createGuestPlayers(n);
             for (int i = 0; i < n; i++)
             {
                 NetworkConfig::get()->addNetworkPlayer(
                     NULL, PlayerManager::get()->getPlayer(i),
-                    PLAYER_DIFFICULTY_NORMAL);
+                    HANDICAP_NONE);
             }
         }
         else
         {
             NetworkConfig::get()->addNetworkPlayer(
                 input_manager->getDeviceManager()->getLatestUsedDevice(),
-                PlayerManager::getCurrentPlayer(), PLAYER_DIFFICULTY_NORMAL);
+                PlayerManager::getCurrentPlayer(), HANDICAP_NONE);
         }
         std::string fixed_ipv6 = StringUtils::findAndReplace(ipv6, "[", " ");
         fixed_ipv6 = StringUtils::findAndReplace(fixed_ipv6, "]", " ");
@@ -1420,9 +1447,9 @@ int handleCmdLine(bool has_server_config, bool has_parent_process)
         {
             std::string cmd =
                 std::string("--stdout=server_ai.log --no-graphics"
-                " --auto-connect --connect-now=127.0.0.1:") +
+                " --network-ai-freq=10 --connect-now=127.0.0.1:") +
                 StringUtils::toString(STKHost::get()->getPrivatePort()) +
-                " --no-console-log --network-ai="
+                " --no-console-log --disable-polling --network-ai="
                 + StringUtils::toString(ai_num);
             if (!server_password.empty())
                 cmd += " --server-password=" + server_password;
@@ -1764,6 +1791,8 @@ void initRest()
     GUIEngine::setSkin(NULL);
 
     GUIEngine::init(device, driver, StateManager::get());
+
+    GUIEngine::renderLoading(true, true);
     input_manager = new InputManager();
     // Get into menu mode initially.
     input_manager->setMode(InputManager::MENU);
@@ -1880,6 +1909,7 @@ void askForInternetPermission()
             if (need_to_start_news_manager)
                 NewsManager::get()->init(false);
 #endif
+            user_config->saveConfig();
             GUIEngine::ModalDialog::dismiss();
         }   // onConfirm
         // --------------------------------------------------------
@@ -2041,6 +2071,9 @@ int main(int argc, char *argv[])
 
         if (!ProfileWorld::isNoGraphics())
             profiler.init();
+        // Create the story mode timer with empty setting first, it will
+        // be reset later after story mode status and player manager is loaded
+        story_mode_timer = new StoryModeTimer();
         initRest();
 
 #ifdef ENABLE_WIIUSE
@@ -2293,6 +2326,11 @@ int main(int argc, char *argv[])
         }
 #endif
 
+        // Reset the story mode timer before going in the main loop
+        // as it needs to be able to run continuously
+        // Now the story mode status and player manager is loaded
+        story_mode_timer->reset();
+
         // Replay a race
         // =============
         if(history->replayHistory())
@@ -2331,6 +2369,7 @@ int main(int argc, char *argv[])
             race_manager->setupPlayerKartInfo();
             race_manager->startNew(false);
         }
+
         main_loop->run();
 
     }  // try
@@ -2440,6 +2479,7 @@ static void cleanSuperTuxKart()
     GUIEngine::cleanUp();
     GUIEngine::clearScreenCache();
     if(font_manager)            delete font_manager;
+    if(story_mode_timer)        delete story_mode_timer;
 
     // Now finish shutting down objects which a separate thread. The
     // RequestManager has been signaled to shut down as early as possible,

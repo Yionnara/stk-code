@@ -154,6 +154,7 @@ World::World() : WorldStatus()
  */
 void World::init()
 {
+    m_ended_early         = false;
     m_faster_music_active = false;
     m_fastest_kart        = 0;
     m_eliminated_karts    = 0;
@@ -199,6 +200,14 @@ void World::init()
     // This also defines the static Track::getCurrentTrack function.
     track->loadTrackModel(race_manager->getReverseTrack());
 
+    // Shuffles the start transforms with playing 3-strikes or free for all battles.
+    if ((race_manager->getMinorMode() == RaceManager::MINOR_MODE_3_STRIKES ||
+         race_manager->getMinorMode() == RaceManager::MINOR_MODE_FREE_FOR_ALL) &&
+         !NetworkConfig::get()->isNetworking())
+    {
+        track->shuffleStartTransforms();
+    }
+
     main_loop->renderGUI(6998);
     if (gk > 0)
     {
@@ -226,13 +235,13 @@ void World::init()
         {
             new_kart = createKartWithTeam(kart_ident, i, local_player_id,
                 global_player_id, race_manager->getKartType(i),
-                race_manager->getPlayerDifficulty(i));
+                race_manager->getPlayerHandicap(i));
         }
         else
         {
             new_kart = createKart(kart_ident, i, local_player_id,
                 global_player_id, race_manager->getKartType(i),
-                race_manager->getPlayerDifficulty(i));
+                race_manager->getPlayerHandicap(i));
         }
         new_kart->setBoostAI(race_manager->hasBoostedAI(i));
         m_karts.push_back(new_kart);
@@ -326,6 +335,7 @@ void World::reset(bool restart)
         m_saved_race_gui = NULL;
     }
 
+    m_ended_early = false;
     m_schedule_pause = false;
     m_schedule_unpause = false;
 
@@ -420,7 +430,7 @@ void World::createRaceGUI()
 std::shared_ptr<AbstractKart> World::createKart
     (const std::string &kart_ident, int index, int local_player_id,
     int global_player_id, RaceManager::KartType kart_type,
-    PerPlayerDifficulty difficulty)
+    HandicapLevel handicap)
 {
     unsigned int gk = 0;
     if (race_manager->hasGhostKarts())
@@ -442,14 +452,14 @@ std::shared_ptr<AbstractKart> World::createKart
     if (RewindManager::get()->isEnabled())
     {
         auto kr = std::make_shared<KartRewinder>(kart_ident, index, position,
-            init_pos, difficulty, ri);
+            init_pos, handicap, ri);
         kr->rewinderAdd();
         new_kart = kr;
     }
     else
     {
         new_kart = std::make_shared<Kart>(kart_ident, index, position,
-            init_pos, difficulty, ri);
+            init_pos, handicap, ri);
     }
 
     new_kart->init(race_manager->getKartType(index));
@@ -471,7 +481,7 @@ std::shared_ptr<AbstractKart> World::createKart
         else
         {
             controller = new LocalPlayerController(new_kart.get(),
-                local_player_id, difficulty);
+                local_player_id, handicap);
             const PlayerProfile* p = StateManager::get()
                 ->getActivePlayer(local_player_id)->getConstProfile();
             if (p && p->getDefaultKartColor() > 0.0f)
@@ -1422,7 +1432,7 @@ unsigned int World::getNumberOfRescuePositions() const
 std::shared_ptr<AbstractKart> World::createKartWithTeam
     (const std::string &kart_ident, int index, int local_player_id,
     int global_player_id, RaceManager::KartType kart_type,
-    PerPlayerDifficulty difficulty)
+    HandicapLevel handicap)
 {
     int cur_red = getTeamNum(KART_TEAM_RED);
     int cur_blue = getTeamNum(KART_TEAM_BLUE);
@@ -1482,14 +1492,14 @@ std::shared_ptr<AbstractKart> World::createKartWithTeam
     if (RewindManager::get()->isEnabled())
     {
         auto kr = std::make_shared<KartRewinder>(kart_ident, index, position,
-            init_pos, difficulty, ri);
+            init_pos, handicap, ri);
         kr->rewinderAdd();
         new_kart = kr;
     }
     else
     {
         new_kart = std::make_shared<Kart>(kart_ident, index, position,
-            init_pos, difficulty, ri);
+            init_pos, handicap, ri);
     }
 
     new_kart->init(race_manager->getKartType(index));
@@ -1498,8 +1508,7 @@ std::shared_ptr<AbstractKart> World::createKartWithTeam
     switch(kart_type)
     {
     case RaceManager::KT_PLAYER:
-        controller = new LocalPlayerController(new_kart.get(), local_player_id,
-            difficulty);
+        controller = new LocalPlayerController(new_kart.get(), local_player_id, handicap);
         m_num_players ++;
         break;
     case RaceManager::KT_NETWORK_PLAYER:

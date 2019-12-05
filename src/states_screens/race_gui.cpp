@@ -24,6 +24,7 @@ using namespace irr;
 #include <algorithm>
 #include <limits>
 
+#include "challenges/story_mode_timer.hpp"
 #include "challenges/unlock_manager.hpp"
 #include "config/user_config.hpp"
 #include "graphics/camera.hpp"
@@ -219,6 +220,14 @@ void RaceGUI::calculateMinimapSize()
         m_map_bottom        = (int)(3*irr_driver->getActualScreenSize().Height/4 - 
                                                         m_map_height);
     }
+    else if ((UserConfigParams::m_minimap_display == 3 && /*map on the center of the screen*/
+       race_manager->getNumLocalPlayers() == 1) || m_multitouch_gui)
+    {
+        m_map_left          = (int)(irr_driver->getActualScreenSize().Width / 2);
+        if (m_map_left + m_map_width > (int)irr_driver->getActualScreenSize().Width)
+          m_map_left        = (int)(irr_driver->getActualScreenSize().Width - m_map_width);
+        m_map_bottom        = (int)( 10.0f * scaling);
+    }
     else // default, map in the bottom-left corner
     {
         m_map_left          = (int)( 10.0f * scaling);
@@ -280,6 +289,14 @@ void RaceGUI::renderGlobal(float dt)
         drawGlobalGoal();
 
     if (!m_enabled) return;
+
+    // Display the story mode timer if not in speedrun mode
+    // If in speedrun mode, it is taken care of in GUI engine
+    // as it must be displayed in all the game's screens
+    if (UserConfigParams::m_display_story_mode_timer &&
+        !UserConfigParams::m_speedrun_mode &&
+        race_manager->raceWasStartedFromOverworld())
+        irr_driver->displayStoryModeTimer();
 
     // MiniMap is drawn when the players wait for the start countdown to end
     drawGlobalMiniMap();
@@ -386,7 +403,7 @@ void RaceGUI::drawGlobalTimer()
 
     float elapsed_time = World::getWorld()->getTime();
     if (!race_manager->hasTimeTarget() ||
-        race_manager ->getMinorMode()==RaceManager::MINOR_MODE_SOCCER ||
+        race_manager->getMinorMode() ==RaceManager::MINOR_MODE_SOCCER ||
         race_manager->getMinorMode() == RaceManager::MINOR_MODE_FREE_FOR_ALL ||
         race_manager->getMinorMode() == RaceManager::MINOR_MODE_CAPTURE_THE_FLAG)
     {

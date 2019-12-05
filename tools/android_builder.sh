@@ -58,6 +58,8 @@ init_directories()
         ln -s ../android/gradlew
         ln -s ../android/icon.png
         ln -s ../android/icon-dbg.png
+        ln -s ../android/icon_adaptive_fg.png
+        ln -s ../android/icon_adaptive_fg-dbg.png
         ln -s ../android/make.sh
         ln -s ../android/android-ndk
         ln -s ../android/android-sdk
@@ -111,6 +113,53 @@ generate_assets()
     fi
 
     cd -
+}
+
+generate_full_assets()
+{
+    echo "Generate zip file with full assets"
+
+    if [ -f "./android-output/stk-assets.zip" ]; then
+        echo "Full assets already found in ./android-output/stk-assets.zip"
+        return
+    fi
+
+    cp -a ./android/generate_assets.sh ./android-output/
+
+    cd ./android-output/
+
+    ONLY_ASSETS=1        \
+    TRACKS="all"         \
+    TEXTURE_SIZE=512     \
+    JPEG_QUALITY=95      \
+    PNG_QUALITY=95       \
+    PNGQUANT_QUALITY=95  \
+    SOUND_QUALITY=112    \
+    SOUND_MONO=0         \
+    SOUND_SAMPLE=44100   \
+    ./generate_assets.sh
+
+    if [ ! -f "./assets/directories.txt" ]; then
+        echo "Error: Couldn't generate full assets"
+        return
+    fi
+
+    cd ./assets/data
+    zip -r ../../stk-assets.zip ./*
+    cd ../../
+
+    rm ./generate_assets.sh
+    
+    if [ ! -f "./stk-assets.zip" ]; then
+        echo "Error: Couldn't generate full assets"
+        return
+    fi
+
+    FULL_ASSETS_SIZE=`du -b ./stk-assets.zip | cut -f1`
+    sed -i "s/stk_assets_size = .*\;/stk_assets_size = $FULL_ASSETS_SIZE\;/g" \
+           "../src/utils/download_assets_size.hpp"
+    
+    cd ../
 }
 
 build_package()
@@ -173,6 +222,7 @@ fi
 init_directories
 
 generate_assets
+generate_full_assets
 
 if [ -z "$1" ] || [ "$1" = "armv7" ]; then
     build_package armv7 armeabi-v7a

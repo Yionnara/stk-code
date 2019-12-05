@@ -37,6 +37,7 @@
 STKPeer::STKPeer(ENetPeer *enet_peer, STKHost* host, uint32_t host_id)
        : m_peer_address(enet_peer->address), m_host(host)
 {
+    m_addons_scores.fill(-1);
     // We use 0.x.x.x ip to map to IPv6 address internally
     if (m_peer_address.getIP() < 16777216)
         m_ipv6_address = getIPV6ReadableFromMappedAddress(&enet_peer->address);
@@ -45,6 +46,7 @@ STKPeer::STKPeer(ENetPeer *enet_peer, STKHost* host, uint32_t host_id)
     m_connected_time      = StkTime::getMonoTimeMs();
     m_validated.store(false);
     m_average_ping.store(0);
+    m_packet_loss.store(0);
     m_waiting_for_game.store(true);
     m_spectator.store(false);
     m_disconnected.store(false);

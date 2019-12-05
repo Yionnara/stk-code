@@ -34,8 +34,6 @@
 #include "network/server_config.hpp"
 #include "network/stk_ipv6.hpp"
 #include "network/stk_peer.hpp"
-#include "tracks/track.hpp"
-#include "tracks/track_manager.hpp"
 #include "utils/log.hpp"
 #include "utils/separate_process.hpp"
 #include "utils/string_utils.hpp"
@@ -266,7 +264,11 @@ STKHost::STKHost(bool server)
         if (addr.port == 0 && !UserConfigParams::m_random_server_port)
             addr.port = stk_config->m_server_port;
         // Reserve 1 peer to deliver full server message
-        m_network = new Network(ServerConfig::m_server_max_players + 1,
+        int peer_count = ServerConfig::m_server_max_players + 1;
+        // 1 more peer to hold ai peer
+        if (ServerConfig::m_ai_handling)
+            peer_count++;
+        m_network = new Network(peer_count,
             /*channel_limit*/EVENT_CHANNEL_COUNT, /*max_in_bandwidth*/0,
             /*max_out_bandwidth*/ 0, &addr, true/*change_port_if_bound*/);
     }
@@ -967,6 +969,9 @@ void STKHost::mainLoop()
                 {
                     m_peer_pings.getData()[p.second->getHostId()] =
                         p.second->getPing();
+                    // Set packet loss before enet command, so if the peer is
+                    // disconnected later the loss won't be cleared
+                    p.second->setPacketLoss(p.first->packetLoss);
                     const unsigned ap = p.second->getAveragePing();
                     const unsigned max_ping = ServerConfig::m_max_ping;
                     if (p.second->isValidated() &&
@@ -1019,11 +1024,7 @@ void STKHost::mainLoop()
                     auto progress = sl->getGameStartedProgress();
                     ping_packet.addUInt32(progress.first)
                         .addUInt32(progress.second);
-                    std::string current_track;
-                    Track* t = sl->getPlayingTrack();
-                    if (t)
-                        current_track = t->getIdent();
-                    ping_packet.encodeString(current_track);
+                    ping_packet.encodeString(sl->getPlayingTrackIdent());
                 }
                 else
                 {
@@ -1059,7 +1060,8 @@ void STKHost::mainLoop()
 
                 // Remove peer which has not been validated after a specific time
                 // It is validated when the first connection request has finished
-                if (!it->second->isValidated() &&
+                if (!it->second->isAIPeer() &&
+                    !it->second->isValidated() &&
                     it->second->getConnectedTime() > timeout)
                 {
                     Log::info("STKHost", "%s has not been validated for more"
@@ -1155,7 +1157,7 @@ void STKHost::mainLoop()
                     getPeerCount());
                 // Client always trust the server
                 if (!is_server)
-                    stk_peer->setValidated();
+                    stk_peer->setValidated(true);
             }   // ENET_EVENT_TYPE_CONNECT
             else if (event.type == ENET_EVENT_TYPE_DISCONNECT)
             {
@@ -1237,9 +1239,7 @@ void STKHost::mainLoop()
                             {
                                 lp->setGameStartedProgress(
                                     std::make_pair(remaining_time, progress));
-                                int idx = track_manager
-                                    ->getTrackIndexByIdent(current_track);
-                                lp->storePlayingTrack(idx);
+                                lp->storePlayingTrack(current_track);
                             }
                         }
                     }
@@ -1324,7 +1324,7 @@ void STKHost::handleDirectSocketRequest(Network* direct_socket,
         s.addUInt32(ServerConfig::m_server_version);
         s.encodeString(name);
         s.addUInt8((uint8_t)ServerConfig::m_server_max_players);
-        s.addUInt8((uint8_t)getTotalPlayers());
+        s.addUInt8((uint8_t)sl->getLobbyPlayers());
         s.addUInt16(m_private_port);
         s.addUInt8((uint8_t)sl->getDifficulty());
         s.addUInt8((uint8_t)sl->getGameMode());
@@ -1332,10 +1332,7 @@ void STKHost::handleDirectSocketRequest(Network* direct_socket,
         s.addUInt8((uint8_t)
             (sl->getCurrentState() == ServerLobby::WAITING_FOR_START_GAME ?
             0 : 1));
-        std::string current_track;
-        if (Track* t = sl->getPlayingTrack())
-            current_track = t->getIdent();
-        s.encodeString(current_track);
+        s.encodeString(sl->getPlayingTrackIdent());
         direct_socket->sendRawPacket(s, sender);
     }   // if message is server-requested
     else if (command == connection_cmd)
@@ -1510,6 +1507,8 @@ std::vector<std::shared_ptr<NetworkPlayerProfile> >
     {
         if (peer.second->isDisconnected() || !peer.second->isValidated())
             continue;
+        if (ServerConfig::m_ai_handling && peer.second->isAIPeer())
+            continue;
         auto peer_profile = peer.second->getPlayerProfiles();
         p.insert(p.end(), peer_profile.begin(), peer_profile.end());
     }
@@ -1549,6 +1548,28 @@ std::shared_ptr<STKPeer> STKHost::findPeerByHostId(uint32_t id) const
 }   // findPeerByHostId
 
 //-----------------------------------------------------------------------------
+std::shared_ptr<STKPeer>
+    STKHost::findPeerByName(const core::stringw& name) const
+{
+    std::lock_guard<std::mutex> lock(m_peers_mutex);
+    auto ret = std::find_if(m_peers.begin(), m_peers.end(),
+        [name](const std::pair<ENetPeer*, std::shared_ptr<STKPeer> >& p)
+        {
+            bool found = false;
+            for (auto& profile : p.second->getPlayerProfiles())
+            {
+                if (profile->getName() == name)
+                {
+                    found = true;
+                    break;
+                }
+            }
+            return found;
+        });
+    return ret != m_peers.end() ? ret->second : nullptr;
+}   // findPeerByName
+
+//-----------------------------------------------------------------------------
 void STKHost::initClientNetwork(ENetEvent& event, Network* new_network)
 {
     assert(NetworkConfig::get()->isClient());
@@ -1561,7 +1582,7 @@ void STKHost::initClientNetwork(ENetEvent& event, Network* new_network)
     }
     auto stk_peer = std::make_shared<STKPeer>(event.peer, this,
         m_next_unique_host_id++);
-    stk_peer->setValidated();
+    stk_peer->setValidated(true);
     m_peers[event.peer] = stk_peer;
     setPrivatePort();
     auto pm = ProtocolManager::lock();
@@ -1599,6 +1620,8 @@ std::vector<std::shared_ptr<NetworkPlayerProfile> >
         auto& stk_peer = p.second;
         if (stk_peer->isWaitingForGame())
             continue;
+        if (ServerConfig::m_ai_handling && stk_peer->isAIPeer())
+            continue;
         for (auto& q : stk_peer->getPlayerProfiles())
             players.push_back(q);
     }
@@ -1622,6 +1645,8 @@ void STKHost::updatePlayers(unsigned* ingame, unsigned* waiting,
     {
         auto& stk_peer = p.second;
         if (!stk_peer->isValidated())
+            continue;
+        if (ServerConfig::m_ai_handling && stk_peer->isAIPeer())
             continue;
         if (stk_peer->isWaitingForGame())
             waiting_players += (uint32_t)stk_peer->getPlayerProfiles().size();

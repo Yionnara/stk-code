@@ -52,6 +52,7 @@ RibbonWidget::RibbonWidget(const RibbonType type) : Widget(WTYPE_RIBBON)
     m_selection[0] = 0; // only player 0 has a selection by default
 
     m_ribbon_type = type;
+    m_ribbon_flip = FLIP_NO;
     m_mouse_focus = NULL;
     m_listener    = NULL;
 
@@ -460,7 +461,7 @@ void RibbonWidget::add()
         }
         else
         {
-            Log::warn("RiggonWidget", "Invalid contents type in ribbon");
+            Log::warn("RibbonWidget", "Invalid contents type in ribbon");
         }
 
 
@@ -921,7 +922,19 @@ void RibbonWidget::setItemVisible(const unsigned int id, bool visible)
     if (m_labels.size() == 0) return;
 
     m_labels[id].setVisible(visible);
-} // RibbonWidget
+} // setItemVisible
+
+// ----------------------------------------------------------------------------
+void RibbonWidget::setFlip(RibbonFlip direction)
+{
+    if(m_ribbon_type == RIBBON_TABS || m_ribbon_type == RIBBON_VERTICAL_TABS)
+        m_ribbon_flip = direction;
+    else
+    {
+        Log::warn("RibbonWidget", "A flip is set to a not-tab ribbon.");
+        m_ribbon_flip = FLIP_NO;
+    }
+}
 
 // ----------------------------------------------------------------------------
 int RibbonWidget::findItemNamed(const char* internalName)
@@ -942,4 +955,4 @@ Widget* RibbonWidget::findWidgetNamed(const char* internalName)
     if (id >= 0)
         return m_children.get(id);
     return NULL;
-}   // findItemNamed
+}   // findWidgetNamed

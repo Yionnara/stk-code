@@ -19,6 +19,7 @@
 
 #include "main_loop.hpp"
 
+#include "audio/music_manager.hpp"
 #include "audio/sfx_manager.hpp"
 #include "config/user_config.hpp"
 #include "graphics/central_settings.hpp"
@@ -110,6 +111,39 @@ MainLoop::~MainLoop()
 float MainLoop::getLimitedDt()
 {
     m_prev_time = m_curr_time;
+
+#ifdef IOS_STK
+    IrrlichtDevice* dev = irr_driver->getDevice();
+    if (dev)
+    {
+        // When ios apps entering background it should not run any
+        // opengl command from apple document, so we stop here
+        bool win_active = dev->isWindowActive();
+        bool has_focus = dev->isWindowFocused();
+        bool first_out_focus = !has_focus;
+        while (!has_focus || !win_active)
+        {
+            if (first_out_focus)
+            {
+                first_out_focus = false;
+                music_manager->pauseMusic();
+                SFXManager::get()->pauseAll();
+            }
+            dev->run();
+            win_active = dev->isWindowActive();
+            has_focus = dev->isWindowFocused();
+            if (has_focus && win_active)
+            {
+                music_manager->resumeMusic();
+                SFXManager::get()->resumeAll();
+                // Improve rubber banding effects of rewinders when going
+                // back to phone, because the smooth timer is paused
+                if (World::getWorld() && RewindManager::isEnabled())
+                    RewindManager::get()->resetSmoothNetworkBody();
+            }
+        }
+    }
+#endif
     float dt = 0;
 
     // In profile mode without graphics, run with a fixed dt of 1/60
@@ -205,12 +239,20 @@ float MainLoop::getLimitedDt()
         // the noise the fan on a graphics card makes.
         // When in menus, reduce FPS much, it's not necessary to push to the
         // maximum for plain menus
+#ifdef IOS_STK
+        // For iOS devices seems that they has fps locked at 60 anyway
+        const int max_fps =
+            UserConfigParams::m_swap_interval == 2 ? 30 :
+            UserConfigParams::m_swap_interval == 1 ? 60 :
+            UserConfigParams::m_max_fps;
+#else
         const int max_fps = (irr_driver->isRecording() &&
                              UserConfigParams::m_limit_game_fps )
                           ? UserConfigParams::m_record_fps 
                           : ( StateManager::get()->throttleFPS() 
                               ? 60 
                               : UserConfigParams::m_max_fps     );
+#endif
         const int current_fps = (int)(1000.0f / dt);
         if (!m_throttle_fps || current_fps <= max_fps ||
             ProfileWorld::isProfileMode()                )  break;
@@ -600,15 +642,20 @@ void MainLoop::run()
  */
 void MainLoop::renderGUI(int phase, int loop_index, int loop_size)
 {
-    return;
 #ifdef SERVER_ONLY
     return;
 #else
-    if (NetworkConfig::get()->isNetworking() &&
-        NetworkConfig::get()->isServer()         )
+    if ((NetworkConfig::get()->isNetworking() &&
+        NetworkConfig::get()->isServer()) ||
+        ProfileWorld::isNoGraphics())
     {
         return;
     }
+    // Atm ignore all input when loading only
+    irr_driver->getDevice()->setEventReceiver(NULL);
+    irr_driver->getDevice()->run();
+    irr_driver->getDevice()->setEventReceiver(GUIEngine::EventHandler::get());
+    return;
     // Rendering past phase 7000 causes the minimap to not work
     // on higher graphical settings
     if (phase > 7000)

@@ -64,7 +64,7 @@ namespace irr {
 #  include <direct.h>
 #  include <windows.h>
 #  include <stdio.h>
-#  if !defined(__CYGWIN__ ) && !defined(__MINGW32__)
+#  if !defined(__MINGW32__)
      /*Needed by the remove directory function */
 #    define S_ISDIR(mode)  (((mode) & S_IFMT) == S_IFDIR)
 #    define S_ISREG(mode)  (((mode) & S_IFMT) == S_IFREG)
@@ -323,8 +323,13 @@ void FileManager::discoverPaths()
         }
     }
 
+    bool has_full_assets = ExtractMobileAssets::hasFullAssets();
+    // Clear previous assets version to free space
+    if (!has_full_assets && fileExists(m_stk_assets_download_dir))
+        removeDirectory(m_stk_assets_download_dir);
+
     // Use stk-assets-full for karts, tracks, textures..., otherwise in data/
-    std::string assets_root = ExtractMobileAssets::hasFullAssets() ?
+    std::string assets_root = has_full_assets ?
         m_stk_assets_download_dir : m_root_dirs[0];
     for (unsigned j = LIBRARY; j <= ASSET_MAX; j++)
     {
@@ -898,7 +903,7 @@ bool FileManager::checkAndCreateDirectory(const std::string &path)
     Log::info("FileManager", "Creating directory '%s'.", path.c_str());
 
     // Otherwise try to create the directory:
-#if defined(WIN32) && !defined(__CYGWIN__)
+#if defined(WIN32)
     bool error = _wmkdir(StringUtils::utf8ToWide(path).c_str()) != 0;
 #else
     bool error = mkdir(path.c_str(), 0755) != 0;
@@ -956,7 +961,7 @@ void FileManager::checkAndCreateConfigDir()
     else
     {
 
-#if defined(WIN32) || defined(__CYGWIN__)
+#if defined(WIN32)
 
         // Try to use the APPDATA directory to store config files and highscore
         // lists. If not defined, used the current directory.
@@ -1060,7 +1065,7 @@ void FileManager::checkAndCreateConfigDir()
  */
 void FileManager::checkAndCreateAddonsDir()
 {
-#if defined(WIN32) || defined(__CYGWIN__)
+#if defined(WIN32)
     m_addons_dir  = m_user_config_dir+"../addons/";
 #elif defined(__APPLE__)
     m_addons_dir  = getenv("HOME");
@@ -1097,7 +1102,7 @@ void FileManager::checkAndCreateAddonsDir()
  */
 void FileManager::checkAndCreateScreenshotDir()
 {
-#if defined(WIN32) || defined(__CYGWIN__)
+#if defined(WIN32)
     m_screenshot_dir  = m_user_config_dir+"screenshots/";
 #elif defined(__APPLE__)
     m_screenshot_dir  = getenv("HOME");
@@ -1123,7 +1128,7 @@ void FileManager::checkAndCreateScreenshotDir()
  */
 void FileManager::checkAndCreateReplayDir()
 {
-#if defined(WIN32) || defined(__CYGWIN__)
+#if defined(WIN32)
     m_replay_dir = m_user_config_dir + "replay/";
 #elif defined(__APPLE__)
     m_replay_dir  = getenv("HOME");
@@ -1149,7 +1154,7 @@ void FileManager::checkAndCreateReplayDir()
 */
 void FileManager::checkAndCreateCachedTexturesDir()
 {
-#if defined(WIN32) || defined(__CYGWIN__)
+#if defined(WIN32)
     m_cached_textures_dir = m_user_config_dir + "cached-textures/";
 #elif defined(__APPLE__)
     m_cached_textures_dir = getenv("HOME");
@@ -1174,7 +1179,7 @@ void FileManager::checkAndCreateCachedTexturesDir()
  */
 void FileManager::checkAndCreateGPDir()
 {
-#if defined(WIN32) || defined(__CYGWIN__)
+#if defined(WIN32)
     m_gp_dir = m_user_config_dir + "grandprix/";
 #elif defined(__APPLE__)
     m_gp_dir  = getenv("HOME");
@@ -1195,7 +1200,7 @@ void FileManager::checkAndCreateGPDir()
 }   // checkAndCreateGPDir
 
 // ----------------------------------------------------------------------------
-#if !defined(WIN32) && !defined(__CYGWIN__) && !defined(__APPLE__)
+#if !defined(WIN32) && !defined(__APPLE__)
 
 /** Find a directory to use for remaining unix variants. Use the new standards
  *  for config directory based on XDG_* environment variables, or a
@@ -1523,6 +1528,9 @@ bool FileManager::removeDirectory(const std::string &name) const
             // So enable it only for Android for now.
             #ifdef MOBILE_STK
             removeDirectory(file);
+            #else
+            if (file.find(m_addons_dir) != std::string::npos)
+                removeDirectory(file);
             #endif
         }
         else
@@ -1597,3 +1605,33 @@ bool FileManager::fileIsNewer(const std::string& f1, const std::string& f2) cons
     FileUtils::statU8Path(f2, &stat2);
     return stat1.st_mtime > stat2.st_mtime;
 }   // fileIsNewer
+
+// ----------------------------------------------------------------------------
+/** Move the source directory into the target directory location.
+*   The target directory must be on the same drive as the source.
+*/
+bool FileManager::moveDirectoryInto(std::string source, std::string target)
+{
+    if (!isDirectory(source) || !isDirectory(target))
+        return false;
+
+    // Remove the last '/'
+    if (source[source.size() - 1] == '/')
+        source.erase(source.end() - 1, source.end());
+    std::string folder = StringUtils::getBasename(source);
+    if (target[target.size() - 1] != '/')
+        target += "/";
+    target += folder;
+
+    // The result target directory must not already exist
+    if (isDirectory(target))
+        return false;
+
+#if defined(WIN32)
+    return MoveFileExW(StringUtils::utf8ToWide(source).c_str(),
+        StringUtils::utf8ToWide(target).c_str(),
+        MOVEFILE_WRITE_THROUGH) != 0;
+#else
+    return rename(source.c_str(), target.c_str()) != -1;
+#endif
+}   // moveDirectoryInto

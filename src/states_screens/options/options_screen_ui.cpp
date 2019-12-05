@@ -20,6 +20,7 @@
 #include "addons/news_manager.hpp"
 #include "audio/sfx_manager.hpp"
 #include "audio/sfx_base.hpp"
+#include "challenges/story_mode_timer.hpp"
 #include "config/hardware_stats.hpp"
 #include "config/player_manager.hpp"
 #include "config/user_config.hpp"
@@ -38,6 +39,7 @@
 #include "guiengine/widget.hpp"
 #include "io/file_manager.hpp"
 #include "online/request_manager.hpp"
+#include "states_screens/dialogs/message_dialog.hpp"
 #include "states_screens/main_menu_screen.hpp"
 #include "states_screens/options/options_screen_audio.hpp"
 #include "states_screens/options/options_screen_general.hpp"
@@ -74,6 +76,75 @@ void OptionsScreenUI::loadedFromFile()
     assert( skinSelector != NULL );
 
     skinSelector->m_properties[PROP_WRAP_AROUND] = "true";
+
+    // Setup the minimap options spinner
+    GUIEngine::SpinnerWidget* minimap_options = getWidget<GUIEngine::SpinnerWidget>("minimap");
+    assert( minimap_options != NULL );
+
+    minimap_options->m_properties[PROP_WRAP_AROUND] = "true";
+    minimap_options->clearLabels();
+    //I18N: In the UI options, minimap position in the race UI 
+    minimap_options->addLabel( core::stringw(_("In the bottom-left")));
+    //I18N: In the UI options, minimap position in the race UI 
+    minimap_options->addLabel( core::stringw(_("On the right side")));
+    //I18N: In the UI options, minimap position in the race UI 
+    minimap_options->addLabel( core::stringw(_("Hidden")));
+    //I18N: In the UI options, minimap position in the race UI
+    minimap_options->addLabel( core::stringw(_("Centered")));
+    minimap_options->m_properties[GUIEngine::PROP_MIN_VALUE] = "0";
+
+    bool multitouch_enabled = (UserConfigParams::m_multitouch_active == 1 && 
+                               irr_driver->getDevice()->supportsTouchDevice()) ||
+                               UserConfigParams::m_multitouch_active > 1;
+
+    if (multitouch_enabled && UserConfigParams::m_multitouch_draw_gui)
+    {
+        minimap_options->m_properties[GUIEngine::PROP_MIN_VALUE] = "1";
+    }
+    minimap_options->m_properties[GUIEngine::PROP_MAX_VALUE] = "3";
+
+    GUIEngine::SpinnerWidget* font_size = getWidget<GUIEngine::SpinnerWidget>("font_size");
+    assert( font_size != NULL );
+
+    font_size->clearLabels();
+    font_size->addLabel(L"Extremely small");
+    //I18N: In the UI options, Very small font size
+    font_size->addLabel(_("Very small"));
+    //I18N: In the UI options, Small font size
+    font_size->addLabel(_("Small"));
+    //I18N: In the UI options, Medium font size
+    font_size->addLabel(_("Medium"));
+    //I18N: In the UI options, Large font size
+    font_size->addLabel(_("Large"));
+    //I18N: In the UI options, Very large font size
+    font_size->addLabel(_("Very large"));
+    font_size->addLabel(L"Extremely large");
+
+    if (UserConfigParams::m_artist_debug_mode)
+    {
+        // Only show extreme size in artist debug mode
+        font_size->m_properties[GUIEngine::PROP_MIN_VALUE] = "0";
+        font_size->m_properties[GUIEngine::PROP_MAX_VALUE] = "6";
+    }
+    else
+    {
+        font_size->m_properties[GUIEngine::PROP_MIN_VALUE] = "1";
+        font_size->m_properties[GUIEngine::PROP_MAX_VALUE] = "5";
+    }
+}   // loadedFromFile
+
+// -----------------------------------------------------------------------------
+
+void OptionsScreenUI::init()
+{
+    Screen::init();
+    RibbonWidget* ribbon = getWidget<RibbonWidget>("options_choice");
+    assert(ribbon != NULL);
+    ribbon->setFocusForPlayer(PLAYER_ID_GAME_MASTER);
+    ribbon->select( "tab_ui", PLAYER_ID_GAME_MASTER );
+
+    GUIEngine::SpinnerWidget* skinSelector = getWidget<GUIEngine::SpinnerWidget>("skinchoice");
+    assert( skinSelector != NULL );
 
     m_skins.clear();
     skinSelector->clearLabels();
@@ -125,74 +196,6 @@ void OptionsScreenUI::loadedFromFile()
     skinSelector->m_properties[GUIEngine::PROP_MIN_VALUE] = "0";
     skinSelector->m_properties[GUIEngine::PROP_MAX_VALUE] = StringUtils::toString(skin_count-1);
 
-
-    // Setup the minimap options spinner
-    GUIEngine::SpinnerWidget* minimap_options = getWidget<GUIEngine::SpinnerWidget>("minimap");
-    assert( minimap_options != NULL );
-
-    minimap_options->m_properties[PROP_WRAP_AROUND] = "true";
-    minimap_options->clearLabels();
-    //I18N: In the UI options, minimap position in the race UI 
-    minimap_options->addLabel( core::stringw(_("In the bottom-left")));
-    //I18N: In the UI options, minimap position in the race UI 
-    minimap_options->addLabel( core::stringw(_("On the right side")));
-    //I18N: In the UI options, minimap position in the race UI 
-    minimap_options->addLabel( core::stringw(_("Hidden")));
-    minimap_options->m_properties[GUIEngine::PROP_MIN_VALUE] = "0";
-
-    bool multitouch_enabled = (UserConfigParams::m_multitouch_active == 1 && 
-                               irr_driver->getDevice()->supportsTouchDevice()) ||
-                               UserConfigParams::m_multitouch_active > 1;
-
-    if (multitouch_enabled && UserConfigParams::m_multitouch_draw_gui)
-    {
-        minimap_options->m_properties[GUIEngine::PROP_MIN_VALUE] = "1";
-    }
-    minimap_options->m_properties[GUIEngine::PROP_MAX_VALUE] = "2";
-
-    GUIEngine::SpinnerWidget* font_size = getWidget<GUIEngine::SpinnerWidget>("font_size");
-    assert( font_size != NULL );
-
-    font_size->clearLabels();
-    font_size->addLabel(L"Extremely small");
-    //I18N: In the UI options, Very small font size
-    font_size->addLabel(_("Very small"));
-    //I18N: In the UI options, Small font size
-    font_size->addLabel(_("Small"));
-    //I18N: In the UI options, Medium font size
-    font_size->addLabel(_("Medium"));
-    //I18N: In the UI options, Large font size
-    font_size->addLabel(_("Large"));
-    //I18N: In the UI options, Very large font size
-    font_size->addLabel(_("Very large"));
-    font_size->addLabel(L"Extremely large");
-
-    if (UserConfigParams::m_artist_debug_mode)
-    {
-        // Only show extreme size in artist debug mode
-        font_size->m_properties[GUIEngine::PROP_MIN_VALUE] = "0";
-        font_size->m_properties[GUIEngine::PROP_MAX_VALUE] = "6";
-    }
-    else
-    {
-        font_size->m_properties[GUIEngine::PROP_MIN_VALUE] = "1";
-        font_size->m_properties[GUIEngine::PROP_MAX_VALUE] = "5";
-    }
-}   // loadedFromFile
-
-// -----------------------------------------------------------------------------
-
-void OptionsScreenUI::init()
-{
-    Screen::init();
-    RibbonWidget* ribbon = getWidget<RibbonWidget>("options_choice");
-    assert(ribbon != NULL);
-    ribbon->setFocusForPlayer(PLAYER_ID_GAME_MASTER);
-    ribbon->select( "tab_ui", PLAYER_ID_GAME_MASTER );
-
-    GUIEngine::SpinnerWidget* skinSelector = getWidget<GUIEngine::SpinnerWidget>("skinchoice");
-    assert( skinSelector != NULL );
-
     GUIEngine::SpinnerWidget* minimap_options = getWidget<GUIEngine::SpinnerWidget>("minimap");
     assert( minimap_options != NULL );
 
@@ -229,6 +232,10 @@ void OptionsScreenUI::init()
     assert(splitscreen_method != NULL);
     splitscreen_method->setState(UserConfigParams::split_screen_horizontally);
 
+    CheckBoxWidget* karts_powerup_gui = getWidget<CheckBoxWidget>("karts_powerup_gui");
+    assert(karts_powerup_gui != NULL);
+    karts_powerup_gui->setState(UserConfigParams::m_karts_powerup_gui);
+
     //Forbid changing this setting in game
     splitscreen_method->setActive(!in_game);
 
@@ -236,12 +243,46 @@ void OptionsScreenUI::init()
     assert( fps != NULL );
     fps->setState( UserConfigParams::m_display_fps );
 
+    CheckBoxWidget* story_timer = getWidget<CheckBoxWidget>("story-mode-timer");
+    assert( story_timer != NULL );
+    story_timer->setState( UserConfigParams::m_display_story_mode_timer );
+    CheckBoxWidget* speedrun_timer = getWidget<CheckBoxWidget>("speedrun-timer");
+    assert( speedrun_timer != NULL );
+    if (story_mode_timer->getStoryModeTime() < 0)
+    {
+        story_timer->setActive(false);
+        speedrun_timer->setActive(false);
+    }
+    else
+    {
+        story_timer->setActive(true);
+
+        speedrun_timer->setActive(UserConfigParams::m_display_story_mode_timer);
+        getWidget<LabelWidget>("speedrun-timer-text")
+            ->setActive(UserConfigParams::m_display_story_mode_timer);
+    }
+    if (UserConfigParams::m_speedrun_mode)
+    {
+        if (!story_mode_timer->playerCanRun())
+        {
+            UserConfigParams::m_speedrun_mode = false;
+            new MessageDialog(_("Speedrun mode disabled. It can only be enabled if the game"
+                                " has not been closed since the launch of the story mode.\n\n"
+                                "Closing the game before the story mode's"
+                                " completion invalidates the timer.\n\n"
+                                "To use the speedrun mode, please use a new profile."),
+                                MessageDialog::MESSAGE_DIALOG_OK,
+                                NULL, false, false, 0.6f, 0.7f);
+        }
+    }
+    speedrun_timer->setState( UserConfigParams::m_speedrun_mode );
+
     // --- select the right skin in the spinner
     bool currSkinFound = false;
     const std::string& user_skin = UserConfigParams::m_skin_file;
     skinSelector->setActive(!in_game);
 
-    for (int n = 0; n < skinSelector->getMax(); n++)
+    for (int n = 0; n <= skinSelector->getMax(); n++)
     {
         auto ret = m_skins.find(skinSelector->getStringValueFromID(n));
         if (ret == m_skins.end())
@@ -303,6 +344,7 @@ void OptionsScreenUI::eventCallback(Widget* widget, const std::string& name, con
         assert( skinSelector != NULL );
 
         const core::stringw selectedSkin = skinSelector->getStringValue();
+        bool right = skinSelector->isRightButtonSelected();
         UserConfigParams::m_skin_file = m_skins[selectedSkin];
         irr_driver->unsetMaxTextureSize();
         bool prev_icon_theme = GUIEngine::getSkin()->hasIconTheme();
@@ -336,6 +378,11 @@ void OptionsScreenUI::eventCallback(Widget* widget, const std::string& name, con
                 };
             GUIEngine::switchToScreen(MainMenuScreen::getInstance());
             StateManager::get()->resetAndSetStack(screen_list);
+            // Need to use new widget pointer
+            skinSelector =
+                OptionsScreenUI::getInstance()->getWidget<GUIEngine::SpinnerWidget>("skinchoice");
+            skinSelector->setFocusForPlayer(PLAYER_ID_GAME_MASTER);
+            skinSelector->setSelectedButton(right);
         }
         irr_driver->setMaxTextureSize();
     }
@@ -349,6 +396,7 @@ void OptionsScreenUI::eventCallback(Widget* widget, const std::string& name, con
     {
         GUIEngine::SpinnerWidget* font_size = getWidget<GUIEngine::SpinnerWidget>("font_size");
         assert( font_size != NULL );
+        bool right = font_size->isRightButtonSelected();
         UserConfigParams::m_font_size = font_size->getValue();
         GUIEngine::clear();
         GUIEngine::cleanUp();
@@ -366,19 +414,69 @@ void OptionsScreenUI::eventCallback(Widget* widget, const std::string& name, con
             };
         GUIEngine::switchToScreen(MainMenuScreen::getInstance());
         StateManager::get()->resetAndSetStack(screen_list);
+        // Need to use new widget pointer
+        font_size =
+            OptionsScreenUI::getInstance()->getWidget<GUIEngine::SpinnerWidget>("font_size");
+        font_size->setFocusForPlayer(PLAYER_ID_GAME_MASTER);
+        font_size->setSelectedButton(right);
     }
     else if (name == "split_screen_horizontally")
     {
         CheckBoxWidget* split_screen_horizontally = getWidget<CheckBoxWidget>("split_screen_horizontally");
         assert(split_screen_horizontally != NULL);
         UserConfigParams::split_screen_horizontally = split_screen_horizontally->getState();
-
+    }
+    else if (name == "karts_powerup_gui")
+    {
+        CheckBoxWidget* karts_powerup_gui = getWidget<CheckBoxWidget>("karts_powerup_gui");
+        assert(karts_powerup_gui != NULL);
+        UserConfigParams::m_karts_powerup_gui = karts_powerup_gui->getState();
     }
     else if (name == "showfps")
     {
         CheckBoxWidget* fps = getWidget<CheckBoxWidget>("showfps");
         assert( fps != NULL );
         UserConfigParams::m_display_fps = fps->getState();
+    }
+    else if (name == "story-mode-timer")
+    {
+        CheckBoxWidget* story_timer = getWidget<CheckBoxWidget>("story-mode-timer");
+        assert( story_timer != NULL );
+        UserConfigParams::m_display_story_mode_timer = story_timer->getState();
+
+        CheckBoxWidget* speedrun_timer = getWidget<CheckBoxWidget>("speedrun-timer");
+        assert( speedrun_timer != NULL );
+        speedrun_timer->setActive( UserConfigParams::m_display_story_mode_timer );
+        getWidget<LabelWidget>("speedrun-timer-text")
+            ->setActive(UserConfigParams::m_display_story_mode_timer);
+
+        // Disable speedrun mode if the story mode timer is disabled
+        if (!UserConfigParams::m_display_story_mode_timer)
+        {
+            UserConfigParams::m_speedrun_mode = false;
+            speedrun_timer->setState(false);
+        }
+
+    }
+    else if (name == "speedrun-timer")
+    {
+        CheckBoxWidget* speedrun_timer = getWidget<CheckBoxWidget>("speedrun-timer");
+        assert( speedrun_timer != NULL );
+        if (speedrun_timer->getState())
+        {
+            if (!story_mode_timer->playerCanRun())
+            {
+                speedrun_timer->setState(false);
+                new MessageDialog(_("Speedrun mode can only be enabled if the game has not"
+                                    " been closed since the launch of the story mode.\n\n"
+                                    "Closing the game before the story mode's"
+                                    " completion invalidates the timer.\n\n"
+                                    "To use the speedrun mode, please use a new profile."),
+                                    MessageDialog::MESSAGE_DIALOG_OK,
+                                    NULL, false, false, 0.6f, 0.7f);
+            }
+        }
+        UserConfigParams::m_speedrun_mode = speedrun_timer->getState();
     }
 #endif
 }   // eventCallback

@@ -43,6 +43,11 @@ class NetworkString;
 class NetworkPlayerProfile;
 class STKPeer;
 
+namespace Online
+{
+    class Request;
+}
+
 class ServerLobby : public LobbyProtocol
 {
 public:
@@ -80,13 +85,15 @@ private:
 
     bool m_ip_ban_table_exists;
 
+    bool m_ipv6_ban_table_exists;
+
     bool m_online_id_ban_table_exists;
 
     bool m_ip_geolocation_table_exists;
 
-    uint64_t m_last_cleanup_db_time;
+    uint64_t m_last_poll_db_time;
 
-    void cleanupDatabase();
+    void pollDatabase();
 
     bool easySQLQuery(const std::string& query,
         std::function<void(sqlite3_stmt* stmt)> bind_function = nullptr) const;
@@ -116,10 +123,21 @@ private:
      * (disconnected). */
     std::weak_ptr<STKPeer> m_server_owner;
 
+    std::weak_ptr<STKPeer> m_ai_peer;
+
     std::atomic<uint32_t> m_server_owner_id;
 
     /** Official karts and tracks available in server. */
     std::pair<std::set<std::string>, std::set<std::string> > m_official_kts;
+
+    /** Addon karts and tracks available in server. */
+    std::pair<std::set<std::string>, std::set<std::string> > m_addon_kts;
+
+    /** Addon arenas available in server. */
+    std::set<std::string> m_addon_arenas;
+
+    /** Addon soccers available in server. */
+    std::set<std::string> m_addon_soccers;
 
     /** Available karts and tracks for all clients, this will be initialized
      *  with data in server first. */
@@ -139,9 +157,9 @@ private:
         std::owner_less<std::weak_ptr<STKPeer> > > m_peers_ready;
 
     /** It indicates if this server is unregistered with the stk server. */
-    std::weak_ptr<bool> m_server_unregistered;
+    std::weak_ptr<Online::Request> m_server_unregistered;
 
-    std::weak_ptr<bool> m_server_recovering;
+    std::weak_ptr<Online::Request> m_server_recovering;
 
     /** Timeout counter for various state. */
     std::atomic<int64_t> m_timeout;
@@ -189,6 +207,8 @@ private:
 
     std::atomic<int> m_game_mode;
 
+    std::atomic<int> m_lobby_players;
+
     std::atomic<uint64_t> m_last_success_poll_time;
 
     uint64_t m_server_started_at, m_server_delay;
@@ -206,6 +226,9 @@ private:
     uint32_t m_winner_peer_id;
 
     uint64_t m_client_starting_time;
+
+    // Calculated before each game started
+    unsigned m_ai_count;
 
     // connection management
     void clientDisconnected(Event* event);
@@ -227,19 +250,7 @@ private:
     void updateServerOwner();
     void handleServerConfiguration(Event* event);
     void updateTracksForMode();
-    bool checkPeersReady() const
-    {
-        bool all_ready = true;
-        for (auto p : m_peers_ready)
-        {
-            if (p.first.expired())
-                continue;
-            all_ready = all_ready && p.second;
-            if (!all_ready)
-                return false;
-        }
-        return true;
-    }
+    bool checkPeersReady(bool ignore_ai_peer) const;
     void resetPeersReady()
     {
         for (auto it = m_peers_ready.begin(); it != m_peers_ready.end();)
@@ -319,6 +330,8 @@ private:
         std::vector<std::shared_ptr<NetworkPlayerProfile> >& players) const;
     std::vector<std::shared_ptr<NetworkPlayerProfile> > getLivePlayers() const;
     void setPlayerKarts(const NetworkString& ns, STKPeer* peer) const;
+    bool handleAssets(const NetworkString& ns, STKPeer* peer) const;
+    void handleServerCommand(Event* event, STKPeer* peer) const;
     void liveJoinRequest(Event* event);
     void rejectLiveJoin(STKPeer* peer, BackLobbyReason blr);
     bool canLiveJoinNow() const;
@@ -330,9 +343,11 @@ private:
     void clientSelectingAssetsWantsToBackLobby(Event* event);
     void kickPlayerWithReason(STKPeer* peer, const char* reason) const;
     void testBannedForIP(STKPeer* peer) const;
+    void testBannedForIPv6(STKPeer* peer) const;
     void testBannedForOnlineId(STKPeer* peer, uint32_t online_id) const;
     void writeDisconnectInfoTable(STKPeer* peer);
     void writePlayerReport(Event* event);
+    bool supportsAI();
 public:
              ServerLobby();
     virtual ~ServerLobby();
@@ -357,6 +372,7 @@ public:
     float getStartupBoostOrPenaltyForKart(uint32_t ping, unsigned kart_id);
     int getDifficulty() const                   { return m_difficulty.load(); }
     int getGameMode() const                      { return m_game_mode.load(); }
+    int getLobbyPlayers() const              { return m_lobby_players.load(); }
     void saveInitialItems();
     void saveIPBanTable(const TransportAddress& addr);
     void listBanTable();

@@ -20,6 +20,7 @@
 #include "config/user_config.hpp"
 #include "graphics/irr_driver.hpp"
 #include "utils/log.hpp"
+#include "utils/string_utils.hpp"
 
 #ifdef ANDROID
 #include "../../../lib/irrlicht/source/Irrlicht/CIrrDeviceAndroid.h"
@@ -27,7 +28,18 @@
 
 extern int main(int argc, char *argv[]);
 
-struct android_app* global_android_app;
+#ifdef ANDROID
+struct android_app* global_android_app = NULL;
+ANativeActivity* global_android_activity = NULL;
+
+extern "C"
+{
+void set_global_android_activity(ANativeActivity* activity)
+{
+    global_android_activity = activity;
+}
+}
+#endif
 
 void override_default_params_for_mobile()
 {
@@ -45,6 +57,11 @@ void override_default_params_for_mobile()
     // Enable multitouch race GUI
     UserConfigParams::m_multitouch_draw_gui = true;
 
+#ifdef IOS_STK
+    // Default 30 fps for battery saving
+    UserConfigParams::m_swap_interval = 2;
+#endif
+
 #ifdef ANDROID
     // Set multitouch device scale depending on actual screen size
     int32_t screen_size = AConfiguration_getScreenSize(global_android_app->config);
@@ -53,18 +70,18 @@ void override_default_params_for_mobile()
     {
     case ACONFIGURATION_SCREENSIZE_SMALL:
     case ACONFIGURATION_SCREENSIZE_NORMAL:
-        UserConfigParams::m_multitouch_scale = 1.3f;
-        UserConfigParams::m_multitouch_sensitivity_x = 0.1f;
+        UserConfigParams::m_multitouch_scale.setDefaultValue(1.3f);
+        UserConfigParams::m_multitouch_sensitivity_x.setDefaultValue(0.1f);
         UserConfigParams::m_font_size = 5.0f;
         break;
     case ACONFIGURATION_SCREENSIZE_LARGE:
-        UserConfigParams::m_multitouch_scale = 1.2f;
-        UserConfigParams::m_multitouch_sensitivity_x = 0.15f;
+        UserConfigParams::m_multitouch_scale.setDefaultValue(1.2f);
+        UserConfigParams::m_multitouch_sensitivity_x.setDefaultValue(0.15f);
         UserConfigParams::m_font_size = 5.0f;
         break;
     case ACONFIGURATION_SCREENSIZE_XLARGE:
-        UserConfigParams::m_multitouch_scale = 1.1f;
-        UserConfigParams::m_multitouch_sensitivity_x = 0.2f;
+        UserConfigParams::m_multitouch_scale.setDefaultValue(1.1f);
+        UserConfigParams::m_multitouch_sensitivity_x.setDefaultValue(0.2f);
         UserConfigParams::m_font_size = 4.0f;
         break;
     default:
@@ -86,12 +103,89 @@ void override_default_params_for_mobile()
     UserConfigParams::m_enforce_current_player = true;
 }
 
+#ifdef IOS_STK
+void getConfigForDevice(const char* dev)
+{
+    // Check browser.geekbench.com/ios-benchmarks metal benchmark
+    // https://gist.github.com/adamawolf/3048717 for device name mapping
+    std::string device = dev;
+    if (device.find("iPhone") != std::string::npos)
+    {
+        // Normal configuration default
+        UserConfigParams::m_multitouch_scale.setDefaultValue(1.3f);
+        UserConfigParams::m_multitouch_sensitivity_x.setDefaultValue(0.1f);
+        UserConfigParams::m_font_size = 5.0f;
+        device.erase(0, 6);
+        auto versions = StringUtils::splitToUInt(device, ',');
+        if (versions.size() == 2)
+        {
+            // A9 GPU
+            if (versions[0] >= 8)
+            {
+                UserConfigParams::m_dynamic_lights = true;
+                UserConfigParams::m_high_definition_textures = 1;
+            }
+            if (versions[0] < 7 || // iPhone 5s
+                (versions[0] == 7 && versions[1] == 2) || // iPhone 6
+                (versions[0] == 8 && versions[1] == 1) || // iPhone 6S
+                (versions[0] == 8 && versions[1] == 4) || // iPhone SE
+                (versions[0] == 9 && versions[1] == 1) || // iPhone 7
+                (versions[0] == 9 && versions[1] == 3) || // iPhone 7
+                (versions[0] == 10 && versions[1] == 1) || // iPhone 8
+                (versions[0] == 10 && versions[1] == 4) // iPhone 8
+                )
+            {
+                // Those phones have small screen
+                UserConfigParams::m_multitouch_scale.setDefaultValue(1.45f);
+            }
+        }
+    }
+    else if (device.find("iPad") != std::string::npos)
+    {
+        // Normal configuration default
+        UserConfigParams::m_multitouch_scale.setDefaultValue(0.95f);
+        UserConfigParams::m_multitouch_sensitivity_x.setDefaultValue(0.2f);
+        UserConfigParams::m_font_size = 3.0f;
+        device.erase(0, 4);
+        auto versions = StringUtils::splitToUInt(device, ',');
+        if (versions.size() == 2)
+        {
+            if (versions[0] >= 7)
+            {
+                UserConfigParams::m_dynamic_lights = true;
+                UserConfigParams::m_high_definition_textures = 1;
+            }
+        }
+    }
+    else if (device.find("iPod") != std::string::npos)
+    {
+        // All iPod touch has small screen
+        UserConfigParams::m_font_size = 5.0f;
+        UserConfigParams::m_multitouch_scale.setDefaultValue(1.45f);
+        UserConfigParams::m_multitouch_sensitivity_x.setDefaultValue(0.1f);
+        device.erase(0, 4);
+        auto versions = StringUtils::splitToUInt(device, ',');
+        if (versions.size() == 2)
+        {
+            // iPod Touch 7th Generation (A10)
+            if (versions[0] >= 9)
+            {
+                UserConfigParams::m_dynamic_lights = true;
+                UserConfigParams::m_high_definition_textures = 1;
+            }
+        }
+    }
+}
+
+#endif
+
 #ifdef ANDROID
 void android_main(struct android_app* app) 
 {
     Log::info("AndroidMain", "Loading application...");
         
     global_android_app = app;
+    global_android_activity = app->activity;
     
     // Initialize global Android window state variables
     CIrrDeviceAndroid::onCreate();
