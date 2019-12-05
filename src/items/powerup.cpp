@@ -421,50 +421,13 @@ void Powerup::use()
 
 //new power up
     case PowerupManager::POWERUP_NEW_ITEM:
-    {
-        AbstractKart* player_kart = NULL;
-        //Attach a parachute(that last 1,3 time as long as the
-        //one from the bananas and is affected by the rank multiplier)
-        //to all the karts that are in front of this one.
-        for(unsigned int i = 0 ; i < world->getNumKarts(); ++i)
-        {
-            AbstractKart *kart=world->getKart(i);
-            if(kart->isEliminated() || kart== m_kart || kart->isInvulnerable()) continue;
-            if(kart->isShielded())
-            {
-                kart->decreaseShieldTime();
-                continue;
-            }
-            if(m_kart->getPosition() > kart->getPosition())
-            {
-                float rank_mult, position_factor;
-                //0 if the one before the item user ; 1 if first ; scaled inbetween
-                if (kart->getPosition() == 1)
-                {
-                    position_factor = 1.0f;
-                }
-                else //m_kart position is always >= 3
-                {
-                    float rank_factor;
-
-                    rank_factor = (float)(kart->getPosition()   - 1)
-                                / (float)(m_kart->getPosition() - 2);
-                    position_factor = 1.0f - rank_factor;
-                }
-
-                rank_mult = 1 + (position_factor *
-                                 (kp->getParachuteDurationRankMult() - 1));
-
-                kart->getAttachment()
-                    ->set(Attachment::ATTACH_NEW_ITEM,
-                          int(kp->getParachuteDurationOther()*rank_mult) );
-
-                if(kart->getController()->isLocalPlayerController())
-                    player_kart = kart;
-            }
-        }
-    }
-            break;
+        m_kart->getAttachment()
+                          ->set(Attachment::ATTACH_BUBBLEGUM_SHIELD,
+                                stk_config->
+                                time2Ticks(kp->getBubblegumShieldDuration()
+                                           + m_kart->getShieldTime()       ) );
+        m_kart->handleZipper(NULL, true);
+        break ;
 
     case PowerupManager::POWERUP_PARACHUTE:
         {
