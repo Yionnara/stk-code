@@ -105,7 +105,7 @@ PowerupManager::PowerupType
     // Must match the order of PowerupType in powerup_manager.hpp!!
     static std::string powerup_names[] = {
         "",                /* Nothing */
-        "bubblegum", "cake", "flour", "bowling", "zipper", "plunger", "switch",
+        "bubblegum", "cake", "new_item", "bowling", "zipper", "plunger", "switch",
         "swatter", "rubber-ball", "parachute", "anchor"
     };
 

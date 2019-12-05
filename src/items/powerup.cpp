@@ -171,8 +171,8 @@ void Powerup::set(PowerupManager::PowerupType type, int n)
         case PowerupManager::POWERUP_ZIPPER:
             break ;
 
-        case PowerupManager::POWERUP_FLOUR:
-            m_sound_use = SFXManager::get()->createSoundSource("parachute");//Flour type
+        case PowerupManager::POWERUP_NEW_ITEM:
+            m_sound_use = SFXManager::get()->createSoundSource("parachute");//New_Item type
             break ;
 
         case PowerupManager::POWERUP_BOWLING:
@@ -420,7 +420,7 @@ void Powerup::use()
         break;
 
 //new power up
-    case PowerupManager::POWERUP_FLOUR:
+    case PowerupManager::POWERUP_NEW_ITEM:
     {
         AbstractKart* player_kart = NULL;
         //Attach a parachute(that last 1,3 time as long as the
@@ -456,7 +456,7 @@ void Powerup::use()
                                  (kp->getParachuteDurationRankMult() - 1));
 
                 kart->getAttachment()
-                    ->set(Attachment::ATTACH_FLOUR,
+                    ->set(Attachment::ATTACH_NEW_ITEM,
                           int(kp->getParachuteDurationOther()*rank_mult) );
 
                 if(kart->getController()->isLocalPlayerController())

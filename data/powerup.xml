@@ -6,7 +6,7 @@
         min-height="0.2"      max-height="1.0"
         force-updown="1"      force-to-target="40"
         max-distance="25"                               />
-  <item name="flour"          icon="flour-icon.png"     />
+  <item name="new_item"          icon="new_item-icon.png"     />
   <item name="bubblegum"      icon="bubblegum-icon.png" />
   <item name="cake"           icon="cake-icon.png"
         model="cake.spm"      speed="50"
@@ -156,7 +156,7 @@
       <!-- The entry for '1' kart lists more than a single weight
            because the others are used for interpolation when
            there are two karts or more. -->
-      <!--            bubble   cake   flour  bowl zipper  plunger  switch swattr rubber para  anvil -->
+      <!--            bubble   cake   new_item  bowl zipper  plunger  switch swattr rubber para  anvil -->
       <weight single  ="140      0    240   300   100      225      75     160     0     0     0"
               multi   ="  0      0    200     0     0        0       0       0     0     0     0" />
       <weight single  ="150      0    250   295   130      200      70     135     0     0     0"
@@ -169,7 +169,7 @@
               multi   ="  0      0    200    90     0        0       0       0     0     0     0" />
     </weights>
     <weights num-karts="5">
-      <!--            bubble   cake   flour  bowl zipper  plunger  switch swattr rubber para  anvil -->
+      <!--            bubble   cake   new_item  bowl zipper  plunger  switch swattr rubber para  anvil -->
       <weight single  ="130     80    280   260    75      230      60     165     0     0     0"
               multi   ="  0      0    210     0     0        0       0       0     0     0     0" />
       <weight single  ="150    135    235   240   125      145      45     135     0     0     0"
@@ -195,7 +195,7 @@
               multi   =" 90      0   210    90   290       20       0       0     0     0     0" />
     </weights>
     <weights num-karts="14">
-      <!--            bubble   cake   flour  bowl zipper  plunger  switch swattr rubber para  anvil -->
+      <!--            bubble   cake   new_item  bowl zipper  plunger  switch swattr rubber para  anvil -->
       <weight single  ="110     40   240   320    25      300      30     175     0     0     0"
               multi   ="  0      0   200     0     0        0       0       0     0     0     0" />
       <weight single  ="140    155   255   240   110      170      20     135     0     0     0"
@@ -208,7 +208,7 @@
               multi   ="120      0   200   125   325       30       0       0     0     0     0" />
     </weights>
     <weights num-karts="20">
-      <!--            bubble   cake   flour  bowl zipper  plunger  switch swattr rubber para  anvil -->
+      <!--            bubble   cake   new_item  bowl zipper  plunger  switch swattr rubber para  anvil -->
       <weight single  ="100      0    200   370     0      330      20     180     0     0     0"
               multi   ="  0      0    200     0     0        0       0       0     0     0     0" />
       <weight single  ="135    160    160   240   100      185      15     135     0     0     0"
@@ -224,7 +224,7 @@
 
   <ftl-weight-list>
     <weights num-karts="1">
-      <!--              bubble  cake   flour  bowl  zipper  plunger  switch swattr rubber para  anvil -->
+      <!--              bubble  cake   new_item  bowl  zipper  plunger  switch swattr rubber para  anvil -->
       <!-- This is the entry for the leader: -->
       <weight single  ="35       0   10        25    35         25       15      25     0     0     0"
               multi   ="20       0    0        0    20           0        0       0     0     0     0" />
@@ -243,7 +243,7 @@
 
   <battle-weight-list>
     <weights num-karts="1">
-      <!--              bubble  cake   flour bowl  zipper  plunger  switch swattr rubber para  anvil -->
+      <!--              bubble  cake   new_item bowl  zipper  plunger  switch swattr rubber para  anvil -->
       <weight single  ="10      30    50     0       0       10      30     0     0     0       0"
               multi   =" 0       0     5     0       0        0       0     0     0     0       0"    />
     </weights>
@@ -251,7 +251,7 @@
 
   <soccer-weight-list>
     <weights num-karts="1">
-      <!--               bubble  cake   flour  bowl  zipper  plunger switch swattr rubber para  anvil -->
+      <!--               bubble  cake   new_item  bowl  zipper  plunger switch swattr rubber para  anvil -->
       <weight single  =" 0      30      30    60     0       0       10      30     0     0     0"
               multi   =" 0       0      0      5     0       0        0       0     0     0     0"    />
     </weights>
@@ -259,7 +259,7 @@
 
   <tutorial-weight-list>
     <weights num-karts="1">
-      <!--               bubble  cake   flour  bowl  zipper  plunger switch swattr rubber para  anvil -->
+      <!--               bubble  cake   new_item  bowl  zipper  plunger switch swattr rubber para  anvil -->
       <weight single  =" 0       0        0     0     0       0        0       0     0     0     0"
               multi   =" 0       0      100   100     0       0        0       0     0     0     0" />
     </weights>
