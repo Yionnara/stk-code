@@ -1067,8 +1067,8 @@ void LinearWorld::checkForWrongDirection(unsigned int i, float dt)
     {
         ki.m_wrong_way_timer += dt;
         
-        if (ki.m_wrong_way_timer> 10.0f)
-            ki.m_wrong_way_timer= 10.0f;
+        if (ki.m_wrong_way_timer> 2.0f)
+            ki.m_wrong_way_timer= 2.0f;
     }
     else
     {
@@ -1089,17 +1089,6 @@ void LinearWorld::checkForWrongDirection(unsigned int i, float dt)
                                /*important*/ true,
                                /*big font*/  true);
     }
-
-    if (NetworkConfig::get()->isNetworking() && NetworkConfig::get()->isClient() && ki.m_wrong_way_timer == 10.0f)
-        {
-            std::shared_ptr<STKPeer> peer = STKHost::get()->findPeerByHostId(i);
-            if (peer){
-                peer->kick();
-            }
-            else{
-                std::cout << "Unknown host id: " << i << std::endl;
-            }
-        }
     
 }   // checkForWrongDirection
 
