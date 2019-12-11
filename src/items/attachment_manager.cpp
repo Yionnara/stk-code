@@ -51,7 +51,7 @@ struct  initAttachmentType {Attachment::AttachmentType attachment;
 static const initAttachmentType iat[]=
 {
     {Attachment::ATTACH_PARACHUTE,        "parachute.spm",        "parachute-attach-icon.png"    },
-    {Attachment::ATTACH_NEW_ITEM,            "parachute.spm",             "new_item-icon.png"          },
+    {Attachment::ATTACH_NEWITEM,            "parachute.spm",             "new_item-icon.png"          },
     {Attachment::ATTACH_BOMB,             "bomb.spm",             "bomb-attach-icon.png"         },
     {Attachment::ATTACH_ANVIL,            "anchor.spm",           "anchor-attach-icon.png"       },
     {Attachment::ATTACH_SWATTER,          "swatter.spm",          "swatter-icon.png"             },

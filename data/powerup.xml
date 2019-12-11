@@ -6,7 +6,7 @@
         min-height="0.2"      max-height="1.0"
         force-updown="1"      force-to-target="40"
         max-distance="25"                               />
-  <item name="new_item"          icon="new_item-icon.png"     />
+  <item name="new_item"       icon="new_item-icon.png"  />
   <item name="bubblegum"      icon="bubblegum-icon.png" />
   <item name="cake"           icon="cake-icon.png"
         model="cake.spm"      speed="50"
@@ -182,7 +182,7 @@
               multi   =" 40      0    210    80   175       26       0       0     0     0     0" />
     </weights>
     <weights num-karts="9">
-      <!--            bubble   cake   flout  bowl zipper  plunger  switch swattr rubber para  anvil -->
+      <!--            bubble   cake new_item  bowl zipper  plunger  switch swattr rubber para  anvil -->
       <weight single  ="120     60   260   290    50      270      40     170     0     0     0"
               multi   ="  0      0   210     0     0        0       0       0     0     0     0" />
       <weight single  ="145    150   150   230   120      160      30     135     0     0     0"
@@ -195,7 +195,7 @@
               multi   =" 90      0   210    90   290       20       0       0     0     0     0" />
     </weights>
     <weights num-karts="14">
-      <!--            bubble   cake   new_item  bowl zipper  plunger  switch swattr rubber para  anvil -->
+      <!--            bubble   cake new_item  bowl zipper  plunger  switch swattr rubber para  anvil -->
       <weight single  ="110     40   240   320    25      300      30     175     0     0     0"
               multi   ="  0      0   200     0     0        0       0       0     0     0     0" />
       <weight single  ="140    155   255   240   110      170      20     135     0     0     0"

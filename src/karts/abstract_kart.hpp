@@ -404,6 +404,9 @@ public:
      *  kart-specific values from kart-properties. */
     virtual void handleZipper(const Material *m=NULL,
                               bool play_sound=false) = 0;
+
+    virtual void handleNewItem(bool play_sound=false) = 0;
+    
     // ------------------------------------------------------------------------
     /** Returns true if this kart has finished the race. */
     virtual bool hasFinishedRace() const = 0;

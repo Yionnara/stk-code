@@ -2216,6 +2216,53 @@ void Kart::handleZipper(const Material *material, bool play_sound)
 
 }   // handleZipper
 
+void Kart::handleNewItem(bool play_sound)
+{
+    /** The additional speed allowed on top of the kart-specific maximum kart
+     *  speed. */
+    float max_speed_increase;
+
+    /**Time the zipper stays activated. */
+    float duration;
+    /** A one time additional speed gain - the kart will instantly add this
+     *  amount of speed to its current speed. */
+    float speed_gain;
+    /** Time it takes for the zipper advantage to fade out. */
+    float fade_out_time;
+    /** Additional engine force. */
+    float engine_force;
+
+    max_speed_increase = m_kart_properties->getZipperMaxSpeedIncrease();
+    duration           = m_kart_properties->getZipperDuration();
+    speed_gain         = m_kart_properties->getZipperSpeedGain();
+    fade_out_time      = m_kart_properties->getZipperFadeOutTime();
+    engine_force       = m_kart_properties->getZipperForce();
+
+    max_speed_increase = 100;
+    duration           = 1000;
+    fade_out_time      = 1000;
+    engine_force       = m_kart_properties->getZipperForce();
+
+    // Ignore a zipper that's activated while braking
+    if(m_controls.getBrake() || m_speed<0) return;
+
+    m_max_speed->instantSpeedIncrease(MaxSpeed::MS_INCREASE_ZIPPER,
+                                     max_speed_increase, speed_gain,
+                                     engine_force,
+                                     stk_config->time2Ticks(duration),
+                                     stk_config->time2Ticks(fade_out_time));
+    // Play custom character sound (weee!)
+    int zipper_ticks = World::getWorld()->getTicksSinceStart();
+    if (zipper_ticks > m_ticks_last_zipper)
+    {
+        m_ticks_last_zipper = zipper_ticks;
+        playCustomSFX(SFXManager::CUSTOM_ZIPPER);
+        m_controller->handleZipper(play_sound);
+    }
+
+}   // handleNewItem
+
+
 // -----------------------------------------------------------------------------
 /** Updates the current nitro status.
  *  \param ticks Number of physics time steps - should be 1.

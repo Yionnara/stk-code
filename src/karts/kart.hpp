@@ -318,6 +318,8 @@ public:
     virtual void   reset            () OVERRIDE;
     virtual void   handleZipper     (const Material *m=NULL,
                                      bool play_sound=false) OVERRIDE;
+    virtual void   handleNewItem     (bool play_sound=false);
+    
     virtual bool   setSquash        (float time, float slowdown) OVERRIDE;
             void   setSquashGraphics();
     virtual void   unsetSquash      () OVERRIDE;

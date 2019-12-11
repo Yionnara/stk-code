@@ -65,7 +65,7 @@ public:
         ATTACH_BOMB = 2,
         // End of fixed order attachments, the rest can be changed.
         ATTACH_SWATTER,
-        ATTACH_NEW_ITEM,//new attach
+        ATTACH_NEWITEM,//new attach
         // Note that the next 2 symbols are only used as an index into the mesh
         // array; it will NEVER be actually assigned as an attachment type
         ATTACH_NOLOKS_SWATTER,

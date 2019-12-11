@@ -171,7 +171,7 @@ void Powerup::set(PowerupManager::PowerupType type, int n)
         case PowerupManager::POWERUP_ZIPPER:
             break ;
 
-        case PowerupManager::POWERUP_NEW_ITEM:
+        case PowerupManager::POWERUP_NEWITEM:
             m_sound_use = SFXManager::get()->createSoundSource("parachute");//New_Item type
             break ;
 
@@ -420,14 +420,14 @@ void Powerup::use()
         break;
 
 //new power up
-    case PowerupManager::POWERUP_NEW_ITEM:
+    case PowerupManager::POWERUP_NEWITEM:
         m_kart->getAttachment()
                           ->set(Attachment::ATTACH_BUBBLEGUM_SHIELD,
                                 stk_config->
                                 time2Ticks(kp->getBubblegumShieldDuration()
                                            + m_kart->getShieldTime()       ) );
-        m_kart->handleZipper(NULL, true);
-        break ;
+        m_kart->handleNewItem(true);
+        break;
 
     case PowerupManager::POWERUP_PARACHUTE:
         {
