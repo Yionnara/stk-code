@@ -2238,10 +2238,10 @@ void Kart::handleNewItem(bool play_sound)
     fade_out_time      = m_kart_properties->getZipperFadeOutTime();
     engine_force       = m_kart_properties->getZipperForce();
 
-    max_speed_increase = 100;
-    duration           = 1000;
-    fade_out_time      = 1000;
-    engine_force       = m_kart_properties->getZipperForce();
+    speed_gain         = 4;
+    duration           = 8; 
+    fade_out_time      = 2; // 8 + 2 = 10sec
+    engine_force       = 1000;
 
     // Ignore a zipper that's activated while braking
     if(m_controls.getBrake() || m_speed<0) return;
