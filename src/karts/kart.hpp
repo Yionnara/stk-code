@@ -319,7 +319,7 @@ public:
     virtual void   handleZipper     (const Material *m=NULL,
                                      bool play_sound=false) OVERRIDE;
     virtual void   handleNewItem     (bool play_sound=false);
-    
+
     virtual bool   setSquash        (float time, float slowdown) OVERRIDE;
             void   setSquashGraphics();
     virtual void   unsetSquash      () OVERRIDE;
@@ -332,6 +332,7 @@ public:
     virtual void   setPosition      (int p) OVERRIDE;
     virtual void   beep             () OVERRIDE;
     virtual void   showZipperFire   () OVERRIDE;
+    virtual void   showNewItemFire   () OVERRIDE;
 
 
     virtual bool   playCustomSFX    (unsigned int type) OVERRIDE;
@@ -351,7 +352,7 @@ public:
                                     int fade_out_time) OVERRIDE;
     // ----------------------------------------------------------------------------------------
     virtual void   instantSpeedIncrease(unsigned int category, float add_max_speed,
-                                    float speed_boost, float engine_force, 
+                                    float speed_boost, float engine_force,
                                     int duration, int fade_out_time) OVERRIDE;
     // ----------------------------------------------------------------------------------------
     virtual void   setSlowdown(unsigned int category, float max_speed_fraction,

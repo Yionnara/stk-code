@@ -163,6 +163,16 @@ AbstractCharacteristic::ValueType AbstractCharacteristic::getType(
         return TYPE_FLOAT;
     case ZIPPER_FADE_OUT_TIME:
         return TYPE_FLOAT;
+    case NEWITEM_DURATION:
+        return TYPE_FLOAT;
+    case NEWITEM_FORCE:
+        return TYPE_FLOAT;
+    case NEWITEM_SPEED_GAIN:
+        return TYPE_FLOAT;
+    case NEWITEM_MAX_SPEED_INCREASE:
+        return TYPE_FLOAT;
+    case NEWITEM_FADE_OUT_TIME:
+            return TYPE_FLOAT;
     case SWATTER_DURATION:
         return TYPE_FLOAT;
     case SWATTER_DISTANCE:
@@ -401,6 +411,16 @@ std::string AbstractCharacteristic::getName(CharacteristicType type)
         return "ZIPPER_MAX_SPEED_INCREASE";
     case ZIPPER_FADE_OUT_TIME:
         return "ZIPPER_FADE_OUT_TIME";
+    case NEWITEM_DURATION:
+        return "NEWITEM_DURATION";
+    case NEWITEM_FORCE:
+        return "NEWITEM_FORCE";
+    case NEWITEM_SPEED_GAIN:
+        return "NEWITEM_SPEED_GAIN";
+    case NEWITEM_MAX_SPEED_INCREASE:
+        return "NEWITEM_MAX_SPEED_INCREASE";
+    case NEWITEM_FADE_OUT_TIME:
+        return "NEWITEM_FADE_OUT_TIME";
     case SWATTER_DURATION:
         return "SWATTER_DURATION";
     case SWATTER_DISTANCE:
@@ -1172,6 +1192,66 @@ float AbstractCharacteristic::getZipperFadeOutTime() const
     if (!is_set)
         Log::fatal("AbstractCharacteristic", "Can't get characteristic %s",
                     getName(ZIPPER_FADE_OUT_TIME).c_str());
+    return result;
+}  // getZipperFadeOutTime
+
+// ------------------newitem------------------------------------------------
+float AbstractCharacteristic::getNewItemDuration() const
+{
+    float result;
+    bool is_set = false;
+    process(NEWITEM_DURATION, &result, &is_set);
+    if (!is_set)
+        Log::fatal("AbstractCharacteristic", "Can't get characteristic %s",
+                    getName(NEWITEM_DURATION).c_str());
+    return result;
+}  // getZipperDuration
+
+// ----------------------------------------------------------------------------
+float AbstractCharacteristic::getNewItemForce() const
+{
+    float result;
+    bool is_set = false;
+    process(NEWITEM_FORCE, &result, &is_set);
+    if (!is_set)
+        Log::fatal("AbstractCharacteristic", "Can't get characteristic %s",
+                    getName(NEWITEM_FORCE).c_str());
+    return result;
+}  // getZipperForce
+
+// ----------------------------------------------------------------------------
+float AbstractCharacteristic::getNewItemSpeedGain() const
+{
+    float result;
+    bool is_set = false;
+    process(NEWITEM_SPEED_GAIN, &result, &is_set);
+    if (!is_set)
+        Log::fatal("AbstractCharacteristic", "Can't get characteristic %s",
+                    getName(NEWITEM_SPEED_GAIN).c_str());
+    return result;
+}  // getZipperSpeedGain
+
+// ----------------------------------------------------------------------------
+float AbstractCharacteristic::getNewItemMaxSpeedIncrease() const
+{
+    float result;
+    bool is_set = false;
+    process(NEW_MAX_SPEED_INCREASE, &result, &is_set);
+    if (!is_set)
+        Log::fatal("AbstractCharacteristic", "Can't get characteristic %s",
+                    getName(NEWITEM_MAX_SPEED_INCREASE).c_str());
+    return result;
+}  // getZipperMaxSpeedIncrease
+
+// ----------------------------------------------------------------------------
+float AbstractCharacteristic::getNewItemFadeOutTime() const
+{
+    float result;
+    bool is_set = false;
+    process(NEW_FADE_OUT_TIME, &result, &is_set);
+    if (!is_set)
+        Log::fatal("AbstractCharacteristic", "Can't get characteristic %s",
+                    getName(NEW_FADE_OUT_TIME).c_str());
     return result;
 }  // getZipperFadeOutTime
 

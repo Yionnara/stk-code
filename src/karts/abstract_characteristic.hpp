@@ -155,6 +155,13 @@ public:
         ZIPPER_MAX_SPEED_INCREASE,
         ZIPPER_FADE_OUT_TIME,
 
+        // Zipper
+        NEWITEM_DURATION,
+        NEWITEM_FORCE,
+        NEWITEM_SPEED_GAIN,
+        NEWITEM_MAX_SPEED_INCREASE,
+        NEWITEM_FADE_OUT_TIME,
+
         // Swatter
         SWATTER_DURATION,
         SWATTER_DISTANCE,
