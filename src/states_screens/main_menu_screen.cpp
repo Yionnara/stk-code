@@ -180,6 +180,10 @@ void MainMenuScreen::init()
     if (quit)
         quit->setVisible(false);
 #endif
+
+    LabelWidget* labelWidget = getWidget<LabelWidget>("blog_link");
+    Screen::manualAddWidget(labelWidget);
+    Screen::addWidgets();
 }   // init
 
 // ----------------------------------------------------------------------------
@@ -243,6 +247,7 @@ void MainMenuScreen::onUpdate(float delta)
 void MainMenuScreen::eventCallback(Widget* widget, const std::string& name,
                                    const int playerID)
 {
+    printf("WIDGET TEXT : %s\n", StringUtils::wideToUtf8(widget->getText().c_str()).c_str());
 #ifndef SERVER_ONLY
     if(name=="user-id")
     {
