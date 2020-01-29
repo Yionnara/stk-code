@@ -1236,7 +1236,7 @@ float AbstractCharacteristic::getNewItemMaxSpeedIncrease() const
 {
     float result;
     bool is_set = false;
-    process(NEW_MAX_SPEED_INCREASE, &result, &is_set);
+    process(NEWITEM_MAX_SPEED_INCREASE, &result, &is_set);
     if (!is_set)
         Log::fatal("AbstractCharacteristic", "Can't get characteristic %s",
                     getName(NEWITEM_MAX_SPEED_INCREASE).c_str());
@@ -1248,10 +1248,10 @@ float AbstractCharacteristic::getNewItemFadeOutTime() const
 {
     float result;
     bool is_set = false;
-    process(NEW_FADE_OUT_TIME, &result, &is_set);
+    process(NEWITEM_FADE_OUT_TIME, &result, &is_set);
     if (!is_set)
         Log::fatal("AbstractCharacteristic", "Can't get characteristic %s",
-                    getName(NEW_FADE_OUT_TIME).c_str());
+                    getName(NEWITEM_FADE_OUT_TIME).c_str());
     return result;
 }  // getZipperFadeOutTime
 

@@ -339,6 +339,12 @@ public:
     float getZipperMaxSpeedIncrease() const;
     float getZipperFadeOutTime() const;
 
+    float getNewItemDuration() const;
+    float getNewItemForce() const;
+    float getNewItemSpeedGain() const;
+    float getNewItemMaxSpeedIncrease() const;
+    float getNewItemFadeOutTime() const;
+
     float getSwatterDuration() const;
     float getSwatterDistance() const;
     float getSwatterSquashDuration() const;

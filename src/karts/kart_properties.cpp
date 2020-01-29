@@ -941,6 +941,37 @@ float KartProperties::getZipperFadeOutTime() const
 }  // getZipperFadeOutTime
 
 // ----------------------------------------------------------------------------
+//------------------------NEW ITEM-----------------------------------------
+float KartProperties::getNewItemDuration() const
+{
+    return m_cached_characteristic->getNewItemDuration();
+}  // getZipperDuration
+
+// ----------------------------------------------------------------------------
+float KartProperties::getNewItemForce() const
+{
+    return m_cached_characteristic->getNewItemForce();
+}  // getZipperForce
+
+// ----------------------------------------------------------------------------
+float KartProperties::getNewItemSpeedGain() const
+{
+    return m_cached_characteristic->getNewItemSpeedGain();
+}  // getZipperSpeedGain
+
+// ----------------------------------------------------------------------------
+float KartProperties::getNewItemMaxSpeedIncrease() const
+{
+    return m_cached_characteristic->getNewItemMaxSpeedIncrease();
+}  // getZipperMaxSpeedIncrease
+
+// ----------------------------------------------------------------------------
+float KartProperties::getNewItemFadeOutTime() const
+{
+    return m_cached_characteristic->getNewItemFadeOutTime();
+}  // getZipperFadeOutTime
+//----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 float KartProperties::getSwatterDuration() const
 {
     return m_cached_characteristic->getSwatterDuration();
@@ -1279,4 +1310,3 @@ bool KartProperties::getSkidEnabled() const
 }  // getSkidEnabled
 
 /* <characteristics-end kpgetter> */
-

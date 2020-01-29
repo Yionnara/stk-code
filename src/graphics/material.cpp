@@ -375,6 +375,23 @@ Material::Material(const XMLNode *node, bool deprecated)
             child_node->get("sengine-force",     &m_zipper_engine_force      );
             child_node->get("min-speed",         &m_zipper_min_speed         );
         }
+        else if (child_node->getName() == "new_item")
+        {
+            // Track version 4 uses a separate node:
+            m_new_item                   = true;
+            m_new_item_duration          = 5.0f;
+            m_new_item_fade_out_time     = 1.0f;
+            m_new_item_max_speed_increase    = 10.0f;
+            m_new_item_speed_gain         = 4.0f;
+            m_new_item_engine_force       = 250;
+            m_new_item_min_speed         = -1.0f;
+            child_node->get("duration",          &m_new_item_duration          );
+            child_node->get("fade-out-time",     &m_new_item_fade_out_time     );
+            child_node->get("max-speed-increase",&m_new_item_max_speed_increase);
+            child_node->get("speed-gain",        &m_new_item_speed_gain        );
+            child_node->get("sengine-force",     &m_new_item_engine_force      );
+            child_node->get("min-speed",         &m_new_item_min_speed         );
+        }
         else
         {
             Log::warn("material", "Unknown node type '%s' for texture "
@@ -501,6 +518,13 @@ void Material::init()
     m_zipper_speed_gain         = -1.0f;
     m_zipper_engine_force       = -1.0f;
     m_zipper_min_speed          = -1.0f;
+    m_new_item                   = false;
+    m_new_item_duration          = -1.0f;
+    m_new_item_fade_out_time     = -1.0f;
+    m_new_item_max_speed_increase    = -1.0f;
+    m_new_item_speed_gain         = -1.0f;
+    m_new_item_engine_force       = -1.0f;
+    m_new_item_min_speed         = -1.0f;
     m_is_jump_texture           = false;
     m_has_gravity               = false;
     m_complain_if_not_found     = true;

@@ -440,6 +440,12 @@ public:
     float getZipperMaxSpeedIncrease() const;
     float getZipperFadeOutTime() const;
 
+    float getNewItemDuration() const;
+    float getNewItemForce() const;
+    float getNewItemSpeedGain() const;
+    float getNewItemMaxSpeedIncrease() const;
+    float getNewItemFadeOutTime() const;
+
     float getSwatterDuration() const;
     float getSwatterDistance() const;
     float getSwatterSquashDuration() const;
@@ -512,9 +518,8 @@ public:
     bool isAddon() const                                 { return m_is_addon; }
 
     /* <characteristics-end kpdefs> */
-    
+
     LEAK_CHECK()
 };   // KartProperties
 
 #endif
-

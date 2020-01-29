@@ -100,6 +100,9 @@ private:
     /** If the material is a zipper, i.e. gives a speed boost. */
     bool             m_zipper;
 
+    /** If the material is a new_item, i.e. gives a speed boost. */
+    bool             m_new_item;
+
     /** If a kart is rescued when driving on this surface. */
     bool             m_drive_reset;
 
@@ -140,7 +143,7 @@ private:
     /** Particles to show on touch */
     std::string      m_collision_particles;
 
-    /** 
+    /**
     * Associated with m_mirror_axis_when_reverse, to avoid mirroring the same material twice
     * (setAllMaterialFlags can be called multiple times on the same mesh buffer)
     */
@@ -167,6 +170,10 @@ private:
      *  guarantee the right jump distance. A negative value indicates no
      *  minimum speed. */
     float            m_zipper_min_speed;
+    /** Minimum speed on this terrain. This is used for new_items on a ramp to
+     *  guarantee the right jump distance. A negative value indicates no
+     *  minimum speed. */
+    float            m_new_item_min_speed;
     /** The minimum speed at which a special sfx is started to be played. */
     float            m_sfx_min_speed;
     /** The speed at which the maximum pitch is used. */
@@ -195,7 +202,25 @@ private:
     float            m_zipper_fade_out_time;
     /** Additional engine force. */
     float            m_zipper_engine_force;
-    
+
+    /** Additional speed allowed on top of the kart-specific maximum kart speed
+     *  if a new_item is used. If this value is <0 the kart specific value will
+     *  be used. */
+    float            m_new_item_max_speed_increase;
+    /** Time a new_item stays activated. If this value is <0 the kart specific
+     *  value will be used. */
+    float            m_new_item_duration;
+    /** A one time additional speed gain - the kart will instantly add this
+     *  amount of speed to its current speed. If this value is <0 the kart
+     *  specific value will be used. */
+    float            m_new_item_speed_gain;
+    /**  Time it takes for the new_item advantage to fade out. If this value
+     *  is <0 the kart specific value will be used. */
+    float            m_new_item_fade_out_time;
+    /** Additional engine force. */
+    float            m_new_item_engine_force;
+
+
     std::string      m_mask;
 
     std::string      m_colorization_mask;
@@ -234,6 +259,11 @@ public:
     // ------------------------------------------------------------------------
     /** Returns true if this material is a zipper. */
     bool  isZipper           () const { return m_zipper;             }
+
+    // ------------------------------------------------------------------------
+    /** Returns true if this material is a new_item. */
+    bool  isNewItem           () const { return m_new_item;             }
+
     // ------------------------------------------------------------------------
     /** Returns if this material should trigger a rescue if a kart
      *  is driving on it. */
@@ -312,7 +342,7 @@ public:
      * \return The particles to use, or NULL if none. */
     const ParticleKind* getParticlesWhen(ParticleConditions cond) const
     {
-        return m_particles_effects[cond]; 
+        return m_particles_effects[cond];
     }   // getParticlesWhen
     // ------------------------------------------------------------------------
     /** Returns true if a kart falling over this kind of material triggers
@@ -346,6 +376,25 @@ public:
      *  for zippers on a ramp to guarantee the right jump distance even
      *  on lower speeds. A negative value indicates no minimum speed. */
     float getZipperMinSpeed() const { return m_zipper_min_speed; }
+    // ------------------------------------------------------------------------
+    /** Returns the new_item parametersfor the current material. */
+    void getNewItemParameter(float *newitem_max_speed_increase,
+                             float *newitem_duration,
+                             float *newitem_speed_gain,
+                             float *newitem_fade_out_time,
+                             float *newitem_engine_force) const
+    {
+        *newitem_max_speed_increase = m_new_item_max_speed_increase;
+        *newitem_duration           = m_new_item_duration;
+        *newitem_speed_gain         = m_new_item_speed_gain;
+        *newitem_fade_out_time      = m_new_item_fade_out_time;
+        *newitem_engine_force       = m_new_item_engine_force;
+    }   // getNewItemParameter
+    // ------------------------------------------------------------------------
+    /** Returns the minimum speed of a kart on this material. This is used
+     *  for new_items on a ramp to guarantee the right jump distance even
+     *  on lower speeds. A negative value indicates no minimum speed. */
+    float getNewItemMinSpeed() const { return m_new_item_min_speed; }
     // ------------------------------------------------------------------------
     /** True if this texture should have the U coordinates mirrored. */
     char getMirrorAxisInReverse() const { return m_mirror_axis_when_reverse; }
@@ -387,4 +436,3 @@ public:
 #endif
 
 /* EOF */
-
