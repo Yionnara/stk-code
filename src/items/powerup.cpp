@@ -283,6 +283,15 @@ void Powerup::use()
     case PowerupManager::POWERUP_ZIPPER:
         m_kart->handleZipper(NULL, true);
         break ;
+//new power up
+    case PowerupManager::POWERUP_NEWITEM:
+        m_kart->getAttachment()
+                          ->set(Attachment::ATTACH_BUBBLEGUM_SHIELD,
+                                stk_config->
+                                time2Ticks(kp->getBubblegumShieldDuration()
+                                           + m_kart->getShieldTime()       ) );
+        m_kart->handleNewItem(true);
+        break;
     case PowerupManager::POWERUP_SWITCH:
         {
             ItemManager::get()->switchItems();
@@ -417,16 +426,6 @@ void Powerup::use()
             }
         }
 
-        break;
-
-//new power up
-    case PowerupManager::POWERUP_NEWITEM:
-        m_kart->getAttachment()
-                          ->set(Attachment::ATTACH_BUBBLEGUM_SHIELD,
-                                stk_config->
-                                time2Ticks(kp->getBubblegumShieldDuration()
-                                           + m_kart->getShieldTime()       ) );
-        m_kart->handleNewItem(true);
         break;
 
     case PowerupManager::POWERUP_PARACHUTE:

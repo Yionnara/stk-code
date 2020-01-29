@@ -1844,7 +1844,7 @@ void Kart::showZipperFire()
 
 void Kart::showNewItemFire()
 {
-    m_kart_gfx->setCreationRateAbsolute(KartGFX::KGFX_NEWITEM, 800.0f);
+    m_kart_gfx->setCreationRateAbsolute(KartGFX::KGFX_ZIPPER, 800.0f);
 }
 
 //-----------------------------------------------------------------------------
@@ -2237,24 +2237,13 @@ void Kart::handleNewItem(bool play_sound)
     /** Additional engine force. */
     float engine_force;
 
-    /*
+    
     max_speed_increase = m_kart_properties->getNewItemMaxSpeedIncrease();
     duration           = m_kart_properties->getNewItemDuration();
     speed_gain         = m_kart_properties->getNewItemSpeedGain();
     fade_out_time      = m_kart_properties->getNewItemFadeOutTime();
     engine_force       = m_kart_properties->getNewItemForce();
-    */
-
-    max_speed_increase = m_kart_properties->getZipperMaxSpeedIncrease();
-    duration           = m_kart_properties->getZipperDuration();
-    speed_gain         = m_kart_properties->getZipperSpeedGain();
-    fade_out_time      = m_kart_properties->getZipperFadeOutTime();
-    engine_force       = m_kart_properties->getZipperForce();
-
-    speed_gain         = 4;
-    duration           = 6;
-    fade_out_time      = 1; // 6 + 1 = 7sec
-    // Ignore a zipper that's activated while braking
+    
     if(m_controls.getBrake() || m_speed<0) return;
 
     m_max_speed->instantSpeedIncrease(MaxSpeed::MS_INCREASE_ZIPPER,
@@ -2268,7 +2257,7 @@ void Kart::handleNewItem(bool play_sound)
     {
         m_ticks_last_zipper = zipper_ticks;
         playCustomSFX(SFXManager::CUSTOM_ZIPPER);
-        m_controller->handleNewItem(play_sound);
+        m_controller->handleZipper(play_sound);
     }
 
 }   // handleNewItem
@@ -2345,10 +2334,6 @@ void Kart::setSlipstreamEffect(float f)
     m_kart_gfx->setCreationRateAbsolute(KartGFX::KGFX_ZIPPER, f);
 }   // setSlipstreamEffect
 
-void Kart::setSlipstreamEffect(float f)
-{
-    m_kart_gfx->setCreationRateAbsolute(KartGFX::KGFX_NEWITEM, f);
-}   // setSlipstreamEffect
 // -----------------------------------------------------------------------------
 /** Called when the kart crashes against another kart.
  *  \param k The kart that was hit.

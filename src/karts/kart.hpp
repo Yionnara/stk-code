@@ -331,8 +331,8 @@ public:
     virtual void   finishedRace     (float time, bool from_server=false) OVERRIDE;
     virtual void   setPosition      (int p) OVERRIDE;
     virtual void   beep             () OVERRIDE;
-    virtual void   showZipperFire   () OVERRIDE;
-    virtual void   showNewItemFire   () OVERRIDE;
+    virtual void   showZipperFire   ();
+    virtual void   showNewItemFire   ();
 
 
     virtual bool   playCustomSFX    (unsigned int type) OVERRIDE;
