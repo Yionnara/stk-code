@@ -237,7 +237,7 @@ void XmlCharacteristic::processFloat(const std::string &processor, float *value,
     if (parts[index].empty())
     {
         // - is a special case: We don't take e.g. "-5" as relative, it
-        // describes a negative number. So 
+        // describes a negative number. So
         if (!*is_set && operations[index] == "-")
             *value = 0;
         else if (!*is_set)
@@ -483,6 +483,20 @@ void XmlCharacteristic::load(const XMLNode *node)
             &m_values[ZIPPER_MAX_SPEED_INCREASE]);
         sub_node->get("fade-out-time",
             &m_values[ZIPPER_FADE_OUT_TIME]);
+    }
+
+    if (const XMLNode *sub_node = node->getNode("new_item"))
+    {
+        sub_node->get("duration",
+            &m_values[NEWITEM_DURATION]);
+        sub_node->get("force",
+            &m_values[NEWITEM_FORCE]);
+        sub_node->get("speed-gain",
+            &m_values[NEWITEM_SPEED_GAIN]);
+        sub_node->get("max-speed-increase",
+            &m_values[NEWITEM_MAX_SPEED_INCREASE]);
+        sub_node->get("fade-out-time",
+            &m_values[NEWITEM_FADE_OUT_TIME]);
     }
 
     if (const XMLNode *sub_node = node->getNode("swatter"))
