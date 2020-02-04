@@ -1709,6 +1709,11 @@ void Kart::update(int ticks)
             handleZipper(material);
             showZipperFire();
         }
+        else if(material->isNewItem()     && isOnGround())
+        {
+            handleNewItem(material);
+            showNewItemFire();
+        }
         else
         {
             m_max_speed->setSlowdown(MaxSpeed::MS_DECREASE_TERRAIN,
@@ -1844,7 +1849,7 @@ void Kart::showZipperFire()
 
 void Kart::showNewItemFire()
 {
-    m_kart_gfx->setCreationRateAbsolute(KartGFX::KGFX_ZIPPER, 800.0f);
+    m_kart_gfx->setCreationRateAbsolute(KartGFX::KGFX_NEWITEM, 800.0f);
 }
 
 //-----------------------------------------------------------------------------
@@ -2237,13 +2242,13 @@ void Kart::handleNewItem(bool play_sound)
     /** Additional engine force. */
     float engine_force;
 
-    
+
     max_speed_increase = m_kart_properties->getNewItemMaxSpeedIncrease();
     duration           = m_kart_properties->getNewItemDuration();
     speed_gain         = m_kart_properties->getNewItemSpeedGain();
     fade_out_time      = m_kart_properties->getNewItemFadeOutTime();
     engine_force       = m_kart_properties->getNewItemForce();
-    
+
     if(m_controls.getBrake() || m_speed<0) return;
 
     m_max_speed->instantSpeedIncrease(MaxSpeed::MS_INCREASE_ZIPPER,
@@ -2257,7 +2262,7 @@ void Kart::handleNewItem(bool play_sound)
     {
         m_ticks_last_zipper = zipper_ticks;
         playCustomSFX(SFXManager::CUSTOM_ZIPPER);
-        m_controller->handleZipper(play_sound);
+        m_controller->handleNewItem(play_sound);
     }
 
 }   // handleNewItem
@@ -2332,6 +2337,11 @@ void Kart::updateNitro(int ticks)
 void Kart::setSlipstreamEffect(float f)
 {
     m_kart_gfx->setCreationRateAbsolute(KartGFX::KGFX_ZIPPER, f);
+}   // setSlipstreamEffect
+
+void Kart::setSlipstreamEffect(float f)
+{
+    m_kart_gfx->setCreationRateAbsolute(KartGFX::KGFX_NEWITEM, f);
 }   // setSlipstreamEffect
 
 // -----------------------------------------------------------------------------

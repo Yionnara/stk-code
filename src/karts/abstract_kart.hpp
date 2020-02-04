@@ -308,20 +308,20 @@ public:
      *  category.
      *  \param category Which category to report on. */
     virtual int getSpeedIncreaseTicksLeft(unsigned int category) const = 0;
-    
+
     // ------------------------------------------------------------------------
     /** Sets the kart AI boost state.
      *  Not pure abstract, since there is no need to implement this e.g. in Ghost.
      *  \param boosted True if a boost should be applied. */
     virtual void setBoostAI(bool boosted) = 0;
-    
+
     // ------------------------------------------------------------------------
     /** Returns the kart AI boost state.
      *  Not pure abstract, since there is no need to implement this e.g. in Ghost. */
     virtual bool getBoostAI() const = 0;
-    
+
     // ------------------------------------------------------------------------
-    
+
     /** Sets an increased maximum speed for a category.
      *  \param category The category for which to set the higher maximum speed.
      *  \param add_speed How much speed (in m/s) is added to the maximum speed.
@@ -397,6 +397,10 @@ public:
     // ------------------------------------------------------------------------
     /** Show fire to go with a zipper. */
     virtual void showZipperFire() = 0;
+
+    // ------------------------------------------------------------------------
+    /** Show fire to go with a NEW_ITEM. */
+    virtual void showNewItemFire() = 0;
     // ------------------------------------------------------------------------
     /** Sets zipper time, and apply one time additional speed boost. It can be
      *  used with a specific material, in which case the zipper parmaters are
@@ -405,8 +409,9 @@ public:
     virtual void handleZipper(const Material *m=NULL,
                               bool play_sound=false) = 0;
 
-    virtual void handleNewItem(bool play_sound=false) = 0;
-    
+    //new_item
+    virtual void handleNewItem(const Material *m=NULL, bool play_sound=false) = 0;
+
     // ------------------------------------------------------------------------
     /** Returns true if this kart has finished the race. */
     virtual bool hasFinishedRace() const = 0;

@@ -50,6 +50,7 @@ public:
                        KGFX_NITROSMOKE1,
                        KGFX_NITROSMOKE2,
                        KGFX_ZIPPER,
+                       KGFX_NEWITEM,
                        KGFX_TERRAIN,
                        KGFX_SKIDL,
                        KGFX_SKIDR,
@@ -81,7 +82,7 @@ private:
 
     /** Used to alternate particle effects from the rear wheels. */
     int         m_wheel_toggle;
-    
+
     /** A skid level that is currently in use */
     int m_skid_level;
 
@@ -111,9 +112,9 @@ public:
     void update(float dt);
     void updateNitroGraphics(float f);
     void updateSkidLight(unsigned int level);
-    void getGFXStatus(int* nitro, bool* zipper,
+    void getGFXStatus(int* nitro, bool* zipper, bool* new_item,
                       int* skidding, bool* red_skidding) const;
-    void setGFXFromReplay(int nitro, bool zipper,
+    void setGFXFromReplay(int nitro, bool zipper, bool new_item
                           int skidding, bool red_skidding);
     void setGFXInvisible();
 

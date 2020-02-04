@@ -374,6 +374,14 @@ void PlayerController::handleZipper(bool play_sound)
 }   // handleZipper
 
 //-----------------------------------------------------------------------------
+/** Called when a kart hits or uses a new_item.
+ */
+void PlayerController::handleNewItem(bool play_sound)
+{
+    m_kart->showNewItemFire();
+}   // handleNewItem
+
+//-----------------------------------------------------------------------------
 bool PlayerController::saveState(BareNetworkString *buffer) const
 {
     // NOTE: when the size changes, the AIBaseController::saveState and

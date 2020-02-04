@@ -220,7 +220,7 @@ void LocalPlayerController::steer(int ticks, int steer_val)
                              video::SColor(255, 255, 0, 255), false);
     }
     PlayerController::steer(ticks, steer_val);
-    
+
     if(UserConfigParams::m_gamepad_debug)
     {
         Log::debug("LocalPlayerController", "  set to: %f\n",
@@ -367,6 +367,29 @@ void LocalPlayerController::handleZipper(bool play_sound)
 }   // handleZipper
 
 //-----------------------------------------------------------------------------
+/** Called when a kart hits or uses a new_item.
+ */
+void LocalPlayerController::handleNewItem(bool play_sound)
+{
+    PlayerController::handleNewItem(play_sound);
+
+    // Only play a new_item sound if it's not already playing, and
+    // if the material has changed (to avoid machine gun effect
+    // on conveyor belt new_items).
+    if (play_sound || (m_wee_sound->getStatus() != SFXBase::SFX_PLAYING &&
+                       m_kart->getMaterial()!=m_kart->getLastMaterial()      ) )
+    {
+        m_wee_sound->play();
+    }
+
+#ifndef SERVER_ONLY
+    // Apply the motion blur according to the speed of the kart
+    irr_driver->giveBoost(m_camera_index);
+#endif
+
+}   // handleNewItem
+
+//-----------------------------------------------------------------------------
 /** Called when a kart hits an item. It plays certain sfx (e.g. nitro full,
  *  or item specific sounds).
  *  \param item Item that was collected.
@@ -405,7 +428,7 @@ void LocalPlayerController::collectedItem(const ItemState &item_state,
 }   // collectedItem
 
 //-----------------------------------------------------------------------------
-/** If the nitro level has gone under the nitro goal, play a bad effect sound 
+/** If the nitro level has gone under the nitro goal, play a bad effect sound
  */
 void LocalPlayerController::nitroNotFullSound()
 {
@@ -420,7 +443,7 @@ void LocalPlayerController::nitroNotFullSound()
  *        collect achievements - synching to online account will happen
  *        next time the account gets online.
  */
-bool LocalPlayerController::canGetAchievements() const 
+bool LocalPlayerController::canGetAchievements() const
 {
     return !RewindManager::get()->isRewinding() &&
         m_player->getConstProfile() == PlayerManager::getCurrentPlayer();

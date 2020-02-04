@@ -75,6 +75,7 @@ public:
                                     bool dry_run=false) OVERRIDE;
             void initParticleEmitter();
     virtual void handleZipper      (bool play_sound) OVERRIDE;
+    virtual void handleNewItem     (bool play_sound) OVERRIDE;
     void         collectedItem     (const ItemState &item,
                                     float previous_energy=0) OVERRIDE;
     virtual void setPosition       (int p) OVERRIDE;

@@ -63,12 +63,13 @@ public:
     virtual void  reset              () = 0;
     virtual void  update             (int ticks) = 0;
     virtual void  handleZipper       (bool play_sound) = 0;
+    virtual void  handleNewItem       (bool play_sound) = 0;
     virtual void  collectedItem      (const ItemState &item,
                                       float previous_energy=0) = 0;
     virtual void  crashed            (const AbstractKart *k) = 0;
     virtual void  crashed            (const Material *m) = 0;
     virtual void  setPosition        (int p) = 0;
-    /** This function checks if this is a local player. A local player will get 
+    /** This function checks if this is a local player. A local player will get
      *  special graphical effects enabled, has a camera, and sound effects will
      *  be played with normal volume. */
     virtual bool  isLocalPlayerController () const = 0;

@@ -48,6 +48,7 @@ public:
     virtual void skidBonusTriggered() OVERRIDE;
     virtual void reset             () OVERRIDE;
     virtual void handleZipper(bool play_sound) OVERRIDE;
+    virtual void handleNewItem(bool play_sound) OVERRIDE;
     virtual void resetInputState();
     virtual bool saveState(BareNetworkString *buffer) const OVERRIDE;
     virtual void rewindTo(BareNetworkString *buffer) OVERRIDE;
@@ -81,7 +82,7 @@ public:
     /** Player will always be able to get a slipstream bonus. */
     virtual bool  disableSlipstreamBonus() const OVERRIDE
     {
-        return false; 
+        return false;
     }
     // ------------------------------------------------------------------------
     /** Called when a race is finished. */
