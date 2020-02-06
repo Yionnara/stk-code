@@ -2338,10 +2338,6 @@ void Kart::updateNitro(int ticks)
 void Kart::setSlipstreamEffect(float f)
 {
     m_kart_gfx->setCreationRateAbsolute(KartGFX::KGFX_ZIPPER, f);
-}   // setSlipstreamEffect
-
-void Kart::setSlipstreamEffect(float f)
-{
     m_kart_gfx->setCreationRateAbsolute(KartGFX::KGFX_NEWITEM, f);
 }   // setSlipstreamEffect
 
