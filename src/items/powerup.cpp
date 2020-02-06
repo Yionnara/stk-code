@@ -290,7 +290,7 @@ void Powerup::use()
                                 stk_config->
                                 time2Ticks(kp->getBubblegumShieldDuration()
                                            + m_kart->getShieldTime()       ) );
-        m_kart->handleNewItem(true);
+        m_kart->handleNewItem(NULL, true);
         break;
     case PowerupManager::POWERUP_SWITCH:
         {

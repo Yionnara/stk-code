@@ -273,6 +273,7 @@ protected:
      * the same ticks. */
     int          m_ticks_last_crash;
     int          m_ticks_last_zipper;
+    int          m_ticks_last_new_item;
     RaceManager::KartType m_type;
 
     void          updatePhysics(int ticks);

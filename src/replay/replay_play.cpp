@@ -315,7 +315,7 @@ void ReplayPlay::load()
 
     // Always load the first replay
     loadFile(/* second replay */ false);
-    
+
 } // load
 
 //-----------------------------------------------------------------------------
@@ -435,6 +435,7 @@ void ReplayPlay::readKartData(FILE *fd, char *next_line, bool second_replay)
                 kre.m_distance            = 0.0f; //not saved in version 3 replays
                 kre.m_nitro_usage         = nitro;
                 kre.m_zipper_usage        = zipper!=0;
+                kre.m_new_item_usage      = new_item!=0;
                 kre.m_skidding_effect     = skidding;
                 kre.m_red_skidding        = red_skidding!=0;
                 kre.m_jumping             = jumping != 0;
@@ -484,6 +485,7 @@ void ReplayPlay::readKartData(FILE *fd, char *next_line, bool second_replay)
                 kre.m_distance            = distance;
                 kre.m_nitro_usage         = nitro;
                 kre.m_zipper_usage        = zipper!=0;
+                kre.m_new_item_usage      = new_item!=0;
                 kre.m_skidding_effect     = skidding;
                 kre.m_red_skidding        = red_skidding!=0;
                 kre.m_jumping             = jumping != 0;

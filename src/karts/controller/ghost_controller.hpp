@@ -52,6 +52,7 @@ public:
     virtual void crashed(const Material *m) OVERRIDE {}
     virtual void crashed(const AbstractKart *k) OVERRIDE {}
     virtual void handleZipper(bool play_sound) OVERRIDE {}
+    virtual void handleNewItem(bool play_sound) OVERRIDE {}
     virtual void finishedRace(float time) OVERRIDE {}
     virtual void collectedItem(const ItemState &item,
                                float previous_energy=0) OVERRIDE {}

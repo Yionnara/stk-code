@@ -512,7 +512,7 @@ void KartGFX::getGFXStatus(int* nitro, bool* zipper, bool* new_item,
 }   // getGFXStatus
 
 // ----------------------------------------------------------------------------
-void KartGFX::setGFXFromReplay(int nitro, bool zipper, bool new_item
+void KartGFX::setGFXFromReplay(int nitro, bool zipper, bool new_item,
                                int skidding, bool red_skidding)
 {
 #ifndef SERVER_ONLY

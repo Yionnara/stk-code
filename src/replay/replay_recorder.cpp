@@ -190,7 +190,7 @@ void ReplayRecorder::update(int ticks)
             // If the attachment has changed
             if (attachment != b_prev->m_attachment)
                   force_update = true;
-    
+
             // If the item amount has changed
             if (kart->getNumPowerup() != b_prev->m_item_amount)
                 force_update = true;
@@ -302,7 +302,7 @@ void ReplayRecorder::update(int ticks)
             r->m_distance = 0.0f;
 
         kart->getKartGFX()->getGFXStatus(&(r->m_nitro_usage),
-            &(r->m_zipper_usage), &(r->m_skidding_effect), &(r->m_red_skidding));
+            &(r->m_zipper_usage), &(r->m_new_item_usage), &(r->m_skidding_effect), &(r->m_red_skidding));
         r->m_jumping = kart->isJumping();
     }   // for i
 
@@ -470,6 +470,7 @@ void ReplayRecorder::save()
                     r->m_distance,
                     r->m_nitro_usage,
                     (int)r->m_zipper_usage,
+                    (int)r->m_new_item_usage,
                     r->m_skidding_effect,
                     (int)r->m_red_skidding,
                     (int)r->m_jumping

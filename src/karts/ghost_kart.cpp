@@ -180,7 +180,7 @@ void GhostKart::update(int ticks)
 
     // Update item amount and type
     PowerupManager::PowerupType item_type =
-        ReplayRecorder::codeToEnumItem(m_all_bonus_info[idx].m_item_type); 
+        ReplayRecorder::codeToEnumItem(m_all_bonus_info[idx].m_item_type);
     m_powerup->set(item_type, m_all_bonus_info[idx].m_item_amount);
 
     // Update special values in easter egg and battle modes
@@ -203,6 +203,7 @@ void GhostKart::update(int ticks)
     // Graphical effects for nitro, zipper and skidding
     getKartGFX()->setGFXFromReplay(m_all_replay_events[idx].m_nitro_usage,
                                    m_all_replay_events[idx].m_zipper_usage,
+                                   m_all_replay_events[idx].m_new_item_usage,
                                    m_all_replay_events[idx].m_skidding_effect,
                                    m_all_replay_events[idx].m_red_skidding);
     getKartGFX()->update(dt);
@@ -251,7 +252,7 @@ void GhostKart::computeFinishTime()
     {
         EasterEggHunt *world = dynamic_cast<EasterEggHunt*>(World::getWorld());
         assert(world);
-        int max_eggs = world->numberOfEggsToFind(); 
+        int max_eggs = world->numberOfEggsToFind();
         m_finish_time = getTimeForEggs(max_eggs);
     }
     else // linear races
@@ -269,7 +270,7 @@ float GhostKart::getTimeForDistance(float distance)
 {
     const GhostController* gc =
         dynamic_cast<const GhostController*>(getController());
-    
+
     int current_index = gc->getCurrentReplayIndex();
 
     // Second, get the current distance
@@ -312,7 +313,7 @@ float GhostKart::getTimeForDistance(float distance)
                 upper_ratio = 0.0f;
             else
                 upper_ratio = lower_diff/(lower_diff+upper_diff);
-                
+
             break;
         }
 
@@ -347,7 +348,7 @@ float GhostKart::getTimeForEggs(int egg_number)
 {
     const GhostController* gc =
         dynamic_cast<const GhostController*>(getController());
-    
+
     int current_index = gc->getCurrentReplayIndex();
 
     // Second, get the current egg number

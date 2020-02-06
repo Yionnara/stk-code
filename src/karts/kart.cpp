@@ -387,6 +387,7 @@ void Kart::reset()
     m_brake_ticks          = 0;
     m_ticks_last_crash     = 0;
     m_ticks_last_zipper    = 0;
+    m_ticks_last_new_item  = 0;
     m_speed                = 0.0f;
     m_current_lean         = 0.0f;
     m_falling_time         = 0.0f;
@@ -2258,9 +2259,9 @@ void Kart::handleNewItem(bool play_sound)
                                      stk_config->time2Ticks(fade_out_time));
     // Play custom character sound (weee!)
     int zipper_ticks = World::getWorld()->getTicksSinceStart();
-    if (zipper_ticks > m_ticks_last_zipper)
+    if (zipper_ticks > m_ticks_last_new_item)
     {
-        m_ticks_last_zipper = zipper_ticks;
+        m_ticks_last_new_item = zipper_ticks;
         playCustomSFX(SFXManager::CUSTOM_ZIPPER);
         m_controller->handleNewItem(play_sound);
     }

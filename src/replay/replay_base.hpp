@@ -89,6 +89,8 @@ protected:
         int    m_nitro_usage;
         /** Zipper usage for the kart recorded. */
         bool   m_zipper_usage;
+        /** newitem usage for the kart recorded. */
+        bool   m_new_item_usage;
         /** Skidding effect for the kart recorded. */
         int    m_skidding_effect;
         /** Kart skidding showing red flame or not. */
