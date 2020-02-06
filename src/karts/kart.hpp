@@ -319,7 +319,8 @@ public:
     virtual void   reset            () OVERRIDE;
     virtual void   handleZipper     (const Material *m=NULL,
                                      bool play_sound=false) OVERRIDE;
-    virtual void   handleNewItem     (bool play_sound=false);
+    virtual void   handleNewItem     (const Material *m=NULL, 
+                                     bool play_sound=false);
 
     virtual bool   setSquash        (float time, float slowdown) OVERRIDE;
             void   setSquashGraphics();
@@ -564,6 +565,8 @@ public:
     // ----------------------------------------------------------------------------------------
     /** Activates a slipstream effect, atm that is display some nitro. */
     virtual void setSlipstreamEffect(float f) OVERRIDE;
+    virtual void setSlipstreamEffectNewItem(float f);
+
     // ----------------------------------------------------------------------------------------
     virtual bool isEliminated() const OVERRIDE { return m_eliminated; }
     // ----------------------------------------------------------------------------------------
