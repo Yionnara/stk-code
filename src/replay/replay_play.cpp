@@ -398,7 +398,7 @@ void ReplayPlay::readKartData(FILE *fd, char *next_line, bool second_replay)
         fgets(s, 1023, fd);
         float x, y, z, rx, ry, rz, rw, time, speed, steer, w1, w2, w3, w4, nitro_amount, distance;
         int skidding_state, attachment, item_amount, item_type, special_value,
-            nitro, zipper, skidding, red_skidding, jumping;
+            nitro, zipper, new_item, skidding, red_skidding, jumping;
 
         // Check for EV_TRANSFORM event:
         // -----------------------------
@@ -406,12 +406,12 @@ void ReplayPlay::readKartData(FILE *fd, char *next_line, bool second_replay)
         // Up to STK 0.9.3 replays
         if (rd.m_replay_version == 3)
         {
-            if(sscanf(s, "%f  %f %f %f  %f %f %f %f  %f  %f  %f %f %f %f  %d %d %d %d %d\n",
+            if(sscanf(s, "%f  %f %f %f  %f %f %f %f  %f  %f  %f %f %f %f  %d %d %d %d %d %d\n",
                 &time,
                 &x, &y, &z,
                 &rx, &ry, &rz, &rw,
                 &speed, &steer, &w1, &w2, &w3, &w4,
-                &nitro, &zipper, &skidding, &red_skidding, &jumping
+                &nitro, &zipper, &new_item, &skidding, &red_skidding, &jumping
                 )==19)
             {
                 btQuaternion q(rx, ry, rz, rw);
@@ -455,13 +455,13 @@ void ReplayPlay::readKartData(FILE *fd, char *next_line, bool second_replay)
         //version 4 replays (STK 0.9.4 and higher)
         else
         {
-            if(sscanf(s, "%f  %f %f %f  %f %f %f %f  %f  %f  %f %f %f %f %d  %d %f %d %d %d  %f %d %d %d %d %d\n",
+            if(sscanf(s, "%f  %f %f %f  %f %f %f %f  %f  %f  %f %f %f %f %d  %d %f %d %d %d  %f %d %d %d %d %d %d\n",
                 &time,
                 &x, &y, &z,
                 &rx, &ry, &rz, &rw,
                 &speed, &steer, &w1, &w2, &w3, &w4, &skidding_state,
                 &attachment, &nitro_amount, &item_amount, &item_type, &special_value,
-                &distance, &nitro, &zipper, &skidding, &red_skidding, &jumping
+                &distance, &nitro, &zipper, &new_item, &skidding, &red_skidding, &jumping
                 )==26)
             {
                 btQuaternion q(rx, ry, rz, rw);

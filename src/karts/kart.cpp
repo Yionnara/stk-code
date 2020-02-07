@@ -2227,7 +2227,7 @@ void Kart::handleZipper(const Material *material, bool play_sound)
 
 }   // handleZipper
 
-void Kart::handleNewItem(bool play_sound)
+void Kart::handleNewItem(const Material *material, bool play_sound)
 {
     /** The additional speed allowed on top of the kart-specific maximum kart
      *  speed. */
@@ -2243,13 +2243,27 @@ void Kart::handleNewItem(bool play_sound)
     /** Additional engine force. */
     float engine_force;
 
-
-    max_speed_increase = m_kart_properties->getNewItemMaxSpeedIncrease();
-    duration           = m_kart_properties->getNewItemDuration();
-    speed_gain         = m_kart_properties->getNewItemSpeedGain();
-    fade_out_time      = m_kart_properties->getNewItemFadeOutTime();
-    engine_force       = m_kart_properties->getNewItemForce();
-
+     if(material)
+    {
+        material->getZipperParameter(&max_speed_increase, &duration,
+                                     &speed_gain, &fade_out_time, &engine_force);
+        if(max_speed_increase<0)
+            max_speed_increase = m_kart_properties->getNewItemMaxSpeedIncrease();
+        if(duration<0)
+            duration           = m_kart_properties->getNewItemDuration();
+        if(speed_gain<0)
+            speed_gain         = m_kart_properties->getNewItemSpeedGain();
+        if(fade_out_time<0)
+            fade_out_time      = m_kart_properties->getNewItemFadeOutTime();
+        if(engine_force<0)
+            engine_force       = m_kart_properties->getNewItemForce();
+    }else{
+        max_speed_increase = m_kart_properties->getNewItemMaxSpeedIncrease();
+        duration           = m_kart_properties->getNewItemDuration();
+        speed_gain         = m_kart_properties->getNewItemSpeedGain();
+        fade_out_time      = m_kart_properties->getNewItemFadeOutTime();
+        engine_force       = m_kart_properties->getNewItemForce();
+    }
     if(m_controls.getBrake() || m_speed<0) return;
 
     m_max_speed->instantSpeedIncrease(MaxSpeed::MS_INCREASE_ZIPPER,
@@ -2263,7 +2277,7 @@ void Kart::handleNewItem(bool play_sound)
     {
         m_ticks_last_new_item = zipper_ticks;
         playCustomSFX(SFXManager::CUSTOM_ZIPPER);
-        m_controller->handleNewItem(play_sound);
+        // m_controller->handleNewItem(play_sound);
     }
 
 }   // handleNewItem
