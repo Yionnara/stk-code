@@ -2277,7 +2277,7 @@ void Kart::handleNewItem(const Material *material, bool play_sound)
     {
         m_ticks_last_new_item = zipper_ticks;
         playCustomSFX(SFXManager::CUSTOM_ZIPPER);
-        // m_controller->handleNewItem(play_sound);
+        m_controller->handleNewItem(play_sound);
     }
 
 }   // handleNewItem
