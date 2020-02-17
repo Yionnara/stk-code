@@ -2229,6 +2229,9 @@ void Kart::handleZipper(const Material *material, bool play_sound)
 
 void Kart::handleNewItem(const Material *material, bool play_sound)
 {
+
+    this->getAttachment()->set(Attachment::ATTACH_NEWITEM_PROTECTION,60);
+
     /** The additional speed allowed on top of the kart-specific maximum kart
      *  speed. */
     float max_speed_increase;
@@ -2277,9 +2280,8 @@ void Kart::handleNewItem(const Material *material, bool play_sound)
     {
         m_ticks_last_new_item = zipper_ticks;
         playCustomSFX(SFXManager::CUSTOM_ZIPPER);
-        // m_controller->handleNewItem(play_sound);
+        m_controller->handleNewItem(play_sound);
     }
-
 }   // handleNewItem
 
 

@@ -542,6 +542,8 @@ void Attachment::update(int ticks)
                 ItemManager::get()->dropNewItem(Item::ITEM_BUBBLEGUM, m_kart);
         }
         break;
+    case ATTACH_NEWITEM_PROTECTION:
+        break;
     }   // switch
 
     // Detach attachment if its time is up.
