@@ -216,10 +216,10 @@
 #include "karts/kart_properties_manager.hpp"
 #include "modes/cutscene_world.hpp"
 #include "modes/demo_world.hpp"
-#include "modes/profile_world.hpp"
 #include "network/protocols/connect_to_server.hpp"
 #include "network/protocols/client_lobby.hpp"
 #include "network/protocols/server_lobby.hpp"
+#include "network/network.hpp"
 #include "network/network_config.hpp"
 #include "network/network_string.hpp"
 #include "network/rewind_manager.hpp"
@@ -227,6 +227,7 @@
 #include "network/server.hpp"
 #include "network/server_config.hpp"
 #include "network/servers_manager.hpp"
+#include "network/socket_address.hpp"
 #include "network/stk_host.hpp"
 #include "network/stk_peer.hpp"
 #include "online/profile_manager.hpp"
@@ -615,11 +616,8 @@ void cmdLineHelp()
     "       --lan-server=name  Start a LAN server (not a playing client).\n"
     "       --server-password= Sets a password for a server (both client and server).\n"
     "       --connect-now=ip   Connect to a server with IP or domain known now\n"
-    "                          (in format x.x.x.x:xxx(port)), the port should be its\n"
-    "                          public port.\n"
-    "       --connect-now6=ip   Connect to a server with IPv6 known now\n"
-    "                          (in format [x:x:x:x:x:x:x:x]:xxx(port)), the port should be its\n"
-    "                          public port.\n"
+    "                          (in format x.x.x.x:xxx(optional port)), the port should be its\n"
+    "                          public port, you can use [::] to replace x.x.x.x for IPv6 address.\n"
     "       --server-id=n      Server id in stk addons for --connect-now.\n"
     "       --network-ai=n     Numbers of AI for connecting to linear race server, used\n"
     "                          together with --connect-now.\n"
@@ -1356,24 +1354,18 @@ int handleCmdLine(bool has_server_config, bool has_parent_process)
 
     int ai_num = 0;
     if (CommandLine::has("--server-ai", &ai_num))
-    {
-        Log::info("main", "Add %d server ai(s) server configurable will be "
-            "disabled.", ai_num);
-        ServerConfig::m_server_configurable = false;
-    }
+        NetworkConfig::get()->setNumFixedAI(ai_num);
 
-    std::string ipv4;
-    std::string ipv6;
-    bool has_ipv4 = CommandLine::has("--connect-now", &ipv4);
-    bool has_ipv6 = CommandLine::has("--connect-now6", &ipv6);
-    if (has_ipv4 || has_ipv6)
+    std::string addr;
+    bool has_addr = CommandLine::has("--connect-now", &addr);
+    if (has_addr)
     {
         NetworkConfig::get()->setIsServer(false);
         if (CommandLine::has("--network-ai", &n))
         {
             // We need an existing current player
             PlayerManager::get()->enforceCurrentPlayer();
-            NetworkConfig::get()->setNetworkAITester(true);
+            NetworkConfig::get()->setNetworkAIInstance(true);
             PlayerManager::get()->createGuestPlayers(n);
             for (int i = 0; i < n; i++)
             {
@@ -1388,24 +1380,22 @@ int handleCmdLine(bool has_server_config, bool has_parent_process)
                 input_manager->getDeviceManager()->getLatestUsedDevice(),
                 PlayerManager::getCurrentPlayer(), HANDICAP_NONE);
         }
-        std::string fixed_ipv6 = StringUtils::findAndReplace(ipv6, "[", " ");
-        fixed_ipv6 = StringUtils::findAndReplace(fixed_ipv6, "]", " ");
-        auto split_ipv6 = StringUtils::split(fixed_ipv6, ' ');
-        std::string ipv6_port;
-        if (split_ipv6.size() == 3)
+        SocketAddress server_addr(addr);
+        if (server_addr.getIP() == 0 && !server_addr.isIPv6())
         {
-            ipv4 = "0.0.0.1" + split_ipv6[2];
-            fixed_ipv6 = split_ipv6[1];
+            Log::error("Main", "Invalid server address: %s", addr.c_str());
+            cleanSuperTuxKart();
+            return false;
         }
-        else
-            fixed_ipv6.clear();
-        TransportAddress server_addr = TransportAddress::fromDomain(ipv4);
-        auto server = std::make_shared<Server>(0,
-            StringUtils::utf8ToWide(server_addr.toString()), 0, 0, 0, 0,
-            server_addr, !server_password.empty(), false);
-        if (!fixed_ipv6.empty())
+        SocketAddress ipv4_addr = server_addr;
+        if (server_addr.isIPv6())
+            ipv4_addr.setIP(0);
+        auto server = std::make_shared<UserDefinedServer>(
+            StringUtils::utf8ToWide(addr), ipv4_addr,
+            !server_password.empty());
+        if (server_addr.isIPv6())
         {
-            server->setIPV6Address(fixed_ipv6);
+            server->setIPV6Address(server_addr);
             server->setIPV6Connection(true);
         }
         NetworkConfig::get()->doneAddingNetworkPlayers();
@@ -1418,7 +1408,10 @@ int handleCmdLine(bool has_server_config, bool has_parent_process)
         else
             NetworkConfig::get()->setIsLAN();
         STKHost::create();
-        NetworkingLobby::getInstance()->setJoinedServer(server);
+        if (!GUIEngine::isNoGraphics())
+            NetworkingLobby::getInstance()->setJoinedServer(server);
+        else if (NetworkConfig::get()->isClient())
+            std::make_shared<ConnectToServer>(server)->requestStart();
     }
 
     if (NetworkConfig::get()->isServer())
@@ -1431,6 +1424,10 @@ int handleCmdLine(bool has_server_config, bool has_parent_process)
                 // Server owner online account will keep online as long as
                 // server is live
                 Online::RequestManager::m_disable_polling = true;
+                // For server we assume it is an IPv4 one, because if it fails
+                // to detect the server won't start at all
+                NetworkConfig::get()->setIPType(NetworkConfig::IP_V4);
+                NetworkConfig::get()->detectIPType();
                 NetworkConfig::get()->setIsWAN();
                 NetworkConfig::get()->setIsPublicServer();
                 ServerConfig::loadServerLobbyFromConfig();
@@ -1444,21 +1441,6 @@ int handleCmdLine(bool has_server_config, bool has_parent_process)
             ServerConfig::loadServerLobbyFromConfig();
             Log::info("main", "Creating a LAN server '%s'.",
                 server_name.c_str());
-        }
-        if (ai_num > 0)
-        {
-            std::string cmd =
-                std::string("--stdout=server_ai.log --no-graphics"
-                " --network-ai-freq=10 --connect-now=127.0.0.1:") +
-                StringUtils::toString(STKHost::get()->getPrivatePort()) +
-                " --no-console-log --disable-polling --network-ai="
-                + StringUtils::toString(ai_num);
-            if (!server_password.empty())
-                cmd += " --server-password=" + server_password;
-            STKHost::get()->setSeparateProcess(
-                new SeparateProcess(
-                SeparateProcess::getCurrentExecutableLocation(), cmd,
-                false/*create_pipe*/, "childprocess_ai"/*childprocess_name*/));
         }
     }
 
@@ -1706,7 +1688,7 @@ int handleCmdLine(bool has_server_config, bool has_parent_process)
 
     CommandLine::reportInvalidParameters();
 
-    if (ProfileWorld::isProfileMode() || ProfileWorld::isNoGraphics())
+    if (ProfileWorld::isProfileMode() || GUIEngine::isNoGraphics())
     {
         UserConfigParams::m_sfx = false;  // Disable sound effects
         UserConfigParams::m_music = false;// and music when profiling
@@ -1805,7 +1787,7 @@ void initRest()
     // separate thread running in network HTTP.
 #ifndef SERVER_ONLY
     addons_manager = NULL;
-    if (!ProfileWorld::isNoGraphics())
+    if (!GUIEngine::isNoGraphics())
     {
         // Need to load shader after downloading assets as it reads prefilled
         // textures
@@ -1823,7 +1805,7 @@ void initRest()
     PlayerManager::create();
     Online::RequestManager::get()->startNetworkThread();
 #ifndef SERVER_ONLY
-    if (!ProfileWorld::isNoGraphics())
+    if (!GUIEngine::isNoGraphics())
         NewsManager::get();   // this will create the news manager
 #endif
 
@@ -1905,7 +1887,7 @@ void askForInternetPermission()
             bool need_to_start_news_manager =
                 UserConfigParams::m_internet_status !=
                 Online::RequestManager::IPERM_ALLOWED &&
-                !ProfileWorld::isNoGraphics();
+                !GUIEngine::isNoGraphics();
             UserConfigParams::m_internet_status =
                                   Online::RequestManager::IPERM_ALLOWED;
             if (need_to_start_news_manager)
@@ -2013,7 +1995,7 @@ int main(int argc, char *argv[])
 #ifndef SERVER_ONLY
         if(CommandLine::has("--no-graphics") || CommandLine::has("-l"))
 #endif
-            ProfileWorld::disableGraphics();
+            GUIEngine::disableGraphics();
 
         // Init the minimum managers so that user config exists, then
         // handle all command line options that do not need (or must
@@ -2026,6 +2008,8 @@ int main(int argc, char *argv[])
 
         // ServerConfig will use stk_config for server version testing
         stk_config->load(file_manager->getAsset("stk_config.xml"));
+        // Client port depends on user config file and stk_config
+        NetworkConfig::get()->initClientPort();
         bool no_graphics = !CommandLine::has("--graphical-server");
 
 #ifndef SERVER_ONLY
@@ -2039,7 +2023,7 @@ int main(int argc, char *argv[])
         {
             if (no_graphics)
             {
-                ProfileWorld::disableGraphics();
+                GUIEngine::disableGraphics();
                 UserConfigParams::m_enable_sound = false;
             }
             ServerConfig::loadServerConfig(server_config);
@@ -2052,7 +2036,7 @@ int main(int argc, char *argv[])
         {
             if (no_graphics)
             {
-                ProfileWorld::disableGraphics();
+                GUIEngine::disableGraphics();
                 UserConfigParams::m_enable_sound = false;
             }
             NetworkConfig::get()->setIsServer(true);
@@ -2067,7 +2051,7 @@ int main(int argc, char *argv[])
         {
             if (no_graphics)
             {
-                ProfileWorld::disableGraphics();
+                GUIEngine::disableGraphics();
                 UserConfigParams::m_enable_sound = false;
             }
             NetworkConfig::get()->setIsServer(true);
@@ -2076,7 +2060,7 @@ int main(int argc, char *argv[])
             ServerConfig::m_validating_player = false;
         }
 
-        if (!ProfileWorld::isNoGraphics())
+        if (!GUIEngine::isNoGraphics())
             profiler.init();
         // Create the story mode timer with empty setting first, it will
         // be reset later after story mode status and player manager is loaded
@@ -2158,7 +2142,7 @@ int main(int argc, char *argv[])
             exit(0);
 
 #ifndef SERVER_ONLY
-        if (!ProfileWorld::isNoGraphics())
+        if (!GUIEngine::isNoGraphics())
         {
             addons_manager->checkInstalledAddons();
 
@@ -2191,7 +2175,7 @@ int main(int argc, char *argv[])
         }
 
 #ifndef SERVER_ONLY
-        if (!ProfileWorld::isNoGraphics())
+        if (!GUIEngine::isNoGraphics())
         {
             // Some Android devices have only 320x240 and height >= 480 is bare
             // minimum to make the GUI working as expected.
@@ -2272,7 +2256,8 @@ int main(int argc, char *argv[])
 
         if (STKHost::existHost())
         {
-            NetworkingLobby::getInstance()->push();
+            if (!GUIEngine::isNoGraphics())
+                NetworkingLobby::getInstance()->push();
         }
         else if (!UserConfigParams::m_no_start_screen)
         {
@@ -2320,7 +2305,7 @@ int main(int argc, char *argv[])
 
 #ifndef SERVER_ONLY
         // If an important news message exists it is shown in a popup dialog.
-        if (!ProfileWorld::isNoGraphics())
+        if (!GUIEngine::isNoGraphics())
         {
             const core::stringw important_message =
                                         NewsManager::get()->getImportantMessage();
@@ -2501,7 +2486,7 @@ static void cleanSuperTuxKart()
     // the OS takes all threads down.
 
 #ifndef SERVER_ONLY
-    if (!ProfileWorld::isNoGraphics())
+    if (!GUIEngine::isNoGraphics())
     {
         if (UserConfigParams::m_internet_status == Online::RequestManager::
             IPERM_ALLOWED && NewsManager::isRunning() &&
@@ -2580,8 +2565,8 @@ void runUnitTests()
     GraphicsRestrictions::unitTesting();
     Log::info("UnitTest", "NetworkString");
     NetworkString::unitTesting();
-    Log::info("UnitTest", "TransportAddress");
-    TransportAddress::unitTesting();
+    Log::info("UnitTest", "SocketAddress");
+    SocketAddress::unitTesting();
     Log::info("UnitTest", "StringUtils::versionToInt");
     StringUtils::unitTesting();
 

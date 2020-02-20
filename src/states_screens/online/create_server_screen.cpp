@@ -20,9 +20,11 @@
 #include "audio/sfx_manager.hpp"
 #include "config/player_manager.hpp"
 #include "config/user_config.hpp"
+#include "karts/controller/network_ai_controller.hpp"
 #include "network/network_config.hpp"
 #include "network/server.hpp"
 #include "network/server_config.hpp"
+#include "network/socket_address.hpp"
 #include "network/stk_host.hpp"
 #include "online/online_profile.hpp"
 #include "states_screens/state_manager.hpp"
@@ -294,7 +296,7 @@ void CreateServerScreen::createServer()
     ServerConfig::m_private_server_password = password;
     password = std::string(" --server-password=") + password;
 
-    TransportAddress server_address(0x7f000001,
+    SocketAddress server_address(0x7f000001,
         stk_config->m_server_discovery_port);
 
     auto server = std::make_shared<Server>(0/*server_id*/, name,
@@ -390,7 +392,10 @@ void CreateServerScreen::createServer()
             if (m_supports_ai)
             {
                 if (esi > 0)
+                {
                     server_cfg << " --server-ai=" << esi;
+                    NetworkAIController::setAIFrequency(10);
+                }
             }
             else
             {

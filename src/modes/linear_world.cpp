@@ -35,6 +35,7 @@
 #include "network/network_player_profile.hpp"
 #include "network/network_string.hpp"
 #include "network/protocols/game_events_protocol.hpp"
+#include "network/protocols/server_lobby.hpp"
 #include "network/server_config.hpp"
 #include "network/stk_host.hpp"
 #include "network/stk_peer.hpp"
@@ -172,7 +173,8 @@ void LinearWorld::reset(bool restart)
  */
 void LinearWorld::update(int ticks)
 {
-    if (NetworkConfig::get()->isServer() && getPhase() == RACE_PHASE)
+    auto sl = LobbyProtocol::get<ServerLobby>();
+    if (sl && getPhase() == RACE_PHASE)
     {
         bool all_players_finished = true;
         bool has_ai = false;
@@ -185,7 +187,7 @@ void LinearWorld::update(int ticks)
             if (npp)
             {
                 auto peer = npp->getPeer();
-                if (peer && peer->isAIPeer())
+                if ((peer && peer->isAIPeer()) || sl->isAIProfile(npp))
                     has_ai = true;
                 else if (!getKart(i)->hasFinishedRace())
                     all_players_finished = false;
@@ -411,7 +413,7 @@ void LinearWorld::newLap(unsigned int kart_index)
     // Last lap message (kart_index's assert in previous block already)
     if (raceHasLaps() && kart_info.m_finished_laps+1 == lap_count)
     {
-        if (lap_count > 1 && !isLiveJoinWorld())
+        if (lap_count > 1 && !isLiveJoinWorld() && m_race_gui)
         {
             m_race_gui->addMessage(_("Final lap!"), kart,
                                3.0f, GUIEngine::getSkin()->getColor("font::normal"), true,
@@ -440,7 +442,7 @@ void LinearWorld::newLap(unsigned int kart_index)
         }
     }
     else if (raceHasLaps() && kart_info.m_finished_laps > 0 &&
-             kart_info.m_finished_laps+1 < lap_count && !isLiveJoinWorld())
+             kart_info.m_finished_laps+1 < lap_count && !isLiveJoinWorld() && m_race_gui)
     {
         m_race_gui->addMessage(_("Lap %i", kart_info.m_finished_laps+1), kart,
                                2.0f, GUIEngine::getSkin()->getColor("font::normal"), true,
@@ -538,12 +540,13 @@ void LinearWorld::newLap(unsigned int kart_index)
         irr::core::stringw m_fastest_lap_message =
             _C("fastest_lap", "%s by %s", s.c_str(), kart_name);
 
-        m_race_gui->addMessage(m_fastest_lap_message, NULL,
-                               4.0f, video::SColor(255, 255, 255, 255), false);
-
-        m_race_gui->addMessage(_("New fastest lap"), NULL,
-                               4.0f, video::SColor(255, 255, 255, 255), false);
-
+        if (m_race_gui)
+        {
+            m_race_gui->addMessage(m_fastest_lap_message, NULL, 4.0f,
+                video::SColor(255, 255, 255, 255), false);
+            m_race_gui->addMessage(_("New fastest lap"), NULL, 4.0f,
+                video::SColor(255, 255, 255, 255), false);
+        }
     } // end if new fastest lap
 
     kart_info.m_lap_start_ticks = getTimeTicks();
@@ -1081,7 +1084,7 @@ void LinearWorld::checkForWrongDirection(unsigned int i, float dt)
     if (kart->getKartAnimation())
         ki.m_wrong_way_timer = 0;
     
-    if (ki.m_wrong_way_timer > 1.0f)
+    if (ki.m_wrong_way_timer > 1.0f && m_race_gui)
     {
         m_race_gui->addMessage(_("WRONG WAY!"), kart,
                                /* time */ -1.0f,

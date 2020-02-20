@@ -24,6 +24,7 @@
 #include "config/user_config.hpp"
 #include "config/player_manager.hpp"
 #include "graphics/camera.hpp"
+#include "guiengine/engine.hpp"
 #include "guiengine/modaldialog.hpp"
 #include "guiengine/message_queue.hpp"
 #include "guiengine/screen_keyboard.hpp"
@@ -57,7 +58,6 @@
 #include "states_screens/dialogs/addons_pack.hpp"
 #include "states_screens/online/networking_lobby.hpp"
 #include "states_screens/online/network_kart_selection.hpp"
-#include "states_screens/race_result_gui.hpp"
 #include "states_screens/online/tracks_screen.hpp"
 #include "tracks/track.hpp"
 #include "tracks/track_manager.hpp"
@@ -87,7 +87,7 @@ engine.
 
 */
 
-ClientLobby::ClientLobby(const TransportAddress& a, std::shared_ptr<Server> s)
+ClientLobby::ClientLobby(const ENetAddress& a, std::shared_ptr<Server> s)
            : LobbyProtocol()
 {
     m_auto_started = false;
@@ -134,7 +134,8 @@ void ClientLobby::setup()
     m_auto_back_to_lobby_time = std::numeric_limits<uint64_t>::max();
     m_start_live_game_time = std::numeric_limits<uint64_t>::max();
     m_received_server_result = false;
-    TracksScreen::getInstance()->resetVote();
+    if (!GUIEngine::isNoGraphics())
+        TracksScreen::getInstance()->resetVote();
     LobbyProtocol::setup();
     m_state.store(NONE);
 }   // setup
@@ -264,7 +265,8 @@ void ClientLobby::addAllPlayers(Event* event)
     PeerVote winner_vote(data);
 
     m_game_setup->setRace(winner_vote);
-    TracksScreen::getInstance()->setResult(winner_peer_id, winner_vote);
+    if (!GUIEngine::isNoGraphics())
+        TracksScreen::getInstance()->setResult(winner_peer_id, winner_vote);
 
     std::shared_ptr<STKPeer> peer = event->getPeerSP();
     peer->cleanPlayerProfiles();
@@ -367,7 +369,7 @@ void ClientLobby::update(int ticks)
     {
         NetworkConfig::get()->clearServerCapabilities();
         std::string ua = StringUtils::getUserAgentString();
-        if (NetworkConfig::get()->isNetworkAITester())
+        if (NetworkConfig::get()->isNetworkAIInstance())
             ua = "AI";
         NetworkString* ns = getNetworkString();
         ns->addUInt8(LE_CONNECTION_REQUESTED)
@@ -387,7 +389,7 @@ void ClientLobby::update(int ticks)
         PlayerManager::get()->enforceCurrentPlayer();
         uint32_t id = PlayerManager::getCurrentOnlineId();
         bool lan_ai = !m_server->supportsEncryption() &&
-            NetworkConfig::get()->isNetworkAITester();
+            NetworkConfig::get()->isNetworkAIInstance();
         if (lan_ai)
             id = 0;
         BareNetworkString* rest = new BareNetworkString();
@@ -414,7 +416,7 @@ void ClientLobby::update(int ticks)
             auto& p = NetworkConfig::get()->getNetworkPlayers()[i];
             PlayerProfile* player = std::get<1>(p);
             core::stringw name = player->getName();
-            if (NetworkConfig::get()->isNetworkAITester())
+            if (NetworkConfig::get()->isNetworkAIInstance())
             {
                 // I18N: Shown in lobby to indicate it's a bot in LAN game
 #ifdef SERVER_ONLY
@@ -547,8 +549,11 @@ void ClientLobby::receivePlayerVote(Event* event)
             vote.m_track_name.c_str());
     }
     addVote(host_id, vote);
-    TracksScreen::getInstance()->addVote(host_id, vote);
-    TracksScreen::getInstance()->updatePlayerVotes();
+    if (!GUIEngine::isNoGraphics())
+    {
+        TracksScreen::getInstance()->addVote(host_id, vote);
+        TracksScreen::getInstance()->updatePlayerVotes();
+    }
 }   // receivePlayerVote
 
 //-----------------------------------------------------------------------------
@@ -590,8 +595,11 @@ void ClientLobby::disconnectedPlayer(Event* event)
         // Use the friend icon to avoid an error-like message
         MessageQueue::add(MessageQueue::MT_FRIEND, msg);
     }
-    TracksScreen::getInstance()->removeVote(host_id);
-    TracksScreen::getInstance()->updatePlayerVotes();
+    if (!GUIEngine::isNoGraphics())
+    {
+        TracksScreen::getInstance()->removeVote(host_id);
+        TracksScreen::getInstance()->updatePlayerVotes();
+    }
 }   // disconnectedPlayer
 
 //-----------------------------------------------------------------------------
@@ -640,7 +648,8 @@ void ClientLobby::connectionAccepted(Event* event)
     float auto_start_timer = data.getFloat();
     int state_frequency_in_server = data.getUInt32();
     NetworkConfig::get()->setStateFrequency(state_frequency_in_server);
-    if (auto_start_timer != std::numeric_limits<float>::max())
+    if (!GUIEngine::isNoGraphics() &&
+        auto_start_timer != std::numeric_limits<float>::max())
         NetworkingLobby::getInstance()->setStartingTimerTo(auto_start_timer);
     m_server_enabled_chat = data.getUInt8() == 1;
     if (NetworkConfig::get()->getServerCapabilities().find("report_player") !=
@@ -731,8 +740,11 @@ void ClientLobby::handleServerInfo(Event* event)
     // Auto start info
     unsigned min_players = data.getUInt8();
     float start_timeout = data.getFloat();
-    NetworkingLobby::getInstance()->initAutoStartTimer(grand_prix_started,
-        min_players, start_timeout, max_player);
+    if (!GUIEngine::isNoGraphics())
+    {
+        NetworkingLobby::getInstance()->initAutoStartTimer(grand_prix_started,
+            min_players, start_timeout, max_player);
+    }
 
     // MOTD
     core::stringw motd;
@@ -745,10 +757,12 @@ void ClientLobby::handleServerInfo(Event* event)
     if (total_lines[total_lines.size() - 1] == L'\n')
         total_lines.erase(total_lines.size() - 1);
 
-    NetworkingLobby::getInstance()->addMoreServerInfo(total_lines);
+    if (!GUIEngine::isNoGraphics())
+        NetworkingLobby::getInstance()->addMoreServerInfo(total_lines);
 
     bool server_config = data.getUInt8() == 1;
-    NetworkingLobby::getInstance()->toggleServerConfigButton(server_config);
+    if (!GUIEngine::isNoGraphics())
+        NetworkingLobby::getInstance()->toggleServerConfigButton(server_config);
     m_server_live_joinable = data.getUInt8() == 1;
 }   // handleServerInfo
 
@@ -802,7 +816,8 @@ void ClientLobby::updatePlayerList(Event* event)
             lp.m_user_name = _("%s (handicapped)", lp.m_user_name);
         }
         lp.m_kart_team = (KartTeam)data.getUInt8();
-        if (lp.m_host_id == STKHost::get()->getMyHostId())
+        // No handicap for AI peer
+        if (!ai && lp.m_host_id == STKHost::get()->getMyHostId())
         {
             if (is_peer_server_owner)
                 client_server_owner = true;
@@ -820,7 +835,8 @@ void ClientLobby::updatePlayerList(Event* event)
         SFXManager::get()->quickSound("energy_bar_full");
     m_total_players = total_players;
 
-    NetworkingLobby::getInstance()->updatePlayers();
+    if (!GUIEngine::isNoGraphics())
+        NetworkingLobby::getInstance()->updatePlayers();
 }   // updatePlayerList
 
 //-----------------------------------------------------------------------------
@@ -862,6 +878,8 @@ void ClientLobby::handleChat(Event* event)
     core::stringw message;
     event->data().decodeString16(&message);
     Log::info("ClientLobby", "%s", StringUtils::wideToUtf8(message).c_str());
+    if (GUIEngine::isNoGraphics())
+        return;
     if (message.size() > 0)
     {
         if (GUIEngine::getCurrentScreen() == NetworkingLobby::getInstance())
@@ -1002,10 +1020,14 @@ void ClientLobby::startSelection(Event* event)
     // In case the user opened a user info dialog
     GUIEngine::ModalDialog::dismiss();
     GUIEngine::ScreenKeyboard::dismiss();
-    NetworkKartSelectionScreen* screen =
-        NetworkKartSelectionScreen::getInstance();
-    screen->setAvailableKartsFromServer(m_available_karts);
-    screen->setLiveJoin(false);
+
+    if (!GUIEngine::isNoGraphics())
+    {
+        NetworkKartSelectionScreen* screen =
+            NetworkKartSelectionScreen::getInstance();
+        screen->setAvailableKartsFromServer(m_available_karts);
+        screen->setLiveJoin(false);
+    }
     // In case of auto-connect or continue a grand prix, use random karts
     // (or previous kart) from server and go to track selection
     if ((NetworkConfig::get()->isAutoConnect() || skip_kart_screen) &&
@@ -1018,17 +1040,23 @@ void ClientLobby::startSelection(Event* event)
                 ->createActivePlayer(std::get<1>(p), std::get<0>(p));
         }
         input_manager->getDeviceManager()->setAssignMode(ASSIGN);
-        TracksScreen::getInstance()->setQuitServer();
-        TracksScreen::getInstance()->setNetworkTracks();
-        TracksScreen::getInstance()->push();
+        if (!GUIEngine::isNoGraphics())
+        {
+            TracksScreen::getInstance()->setQuitServer();
+            TracksScreen::getInstance()->setNetworkTracks();
+            TracksScreen::getInstance()->push();
+        }
     }
-    else
+    else if (!GUIEngine::isNoGraphics())
     {
-        screen->push();
+        NetworkKartSelectionScreen::getInstance()->push();
     }
 
-    TracksScreen *ts = TracksScreen::getInstance();
-    ts->resetVote();
+    if (!GUIEngine::isNoGraphics())
+    {
+        TracksScreen *ts = TracksScreen::getInstance();
+        ts->resetVote();
+    }
     m_state.store(SELECTING_ASSETS);
     Log::info("ClientLobby", "Selection starts now");
 }   // startSelection
@@ -1136,10 +1164,10 @@ void ClientLobby::backToLobby(Event *event)
     {
         auto lock = gp->acquireWorldDeletingMutex();
         ProtocolManager::lock()->findAndTerminate(PROTOCOL_CONTROLLER_EVENTS);
-        RaceResultGUI::getInstance()->backToLobby();
+        exitGameState();
     }
     else
-        RaceResultGUI::getInstance()->backToLobby();
+        exitGameState();
 
     NetworkString &data = event->data();
     core::stringw msg;
