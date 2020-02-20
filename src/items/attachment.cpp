@@ -104,7 +104,7 @@ Attachment::~Attachment()
 /** Sets the attachment a kart has. This will also handle animation to be
  *  played, e.g. when a swatter replaces a bomb.
  *  \param type The type of the new attachment.
- *  \param time How long this attachment should stay with the kart.
+ *  \param ticks How long this attachment should stay with the kart.
  *  \param current_kart The kart from which an attachment is transferred.
  *         This is currently used for the bomb (to avoid that a bomb
  *         can be passed back to the previous owner). NULL if a no
@@ -131,6 +131,7 @@ void Attachment::set(AttachmentType type, int ticks,
     }   // switch(type)
 
     m_type             = type;
+    printf("TICKS %d", ticks);
     m_ticks_left       = ticks;
     m_previous_owner   = current_kart;
     m_scaling_end_ticks = World::getWorld()->getTicksSinceStart() +
@@ -277,6 +278,8 @@ void Attachment::hitBanana(ItemState *item_state)
        m_type == ATTACH_NOLOK_BUBBLEGUM_SHIELD)
     {
         m_ticks_left = 0;
+        return;
+    }else if(m_type == ATTACH_NEWITEM_PROTECTION){
         return;
     }
 
@@ -525,6 +528,8 @@ void Attachment::update(int ticks)
         }
         break;
     }
+    case ATTACH_NEWITEM_PROTECTION:
+        break;
     case ATTACH_BUBBLEGUM_SHIELD:
     case ATTACH_NOLOK_BUBBLEGUM_SHIELD:
         m_initial_speed = 0;
@@ -542,8 +547,7 @@ void Attachment::update(int ticks)
                 ItemManager::get()->dropNewItem(Item::ITEM_BUBBLEGUM, m_kart);
         }
         break;
-    case ATTACH_NEWITEM_PROTECTION:
-        break;
+ 
     }   // switch
 
     // Detach attachment if its time is up.

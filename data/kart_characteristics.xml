@@ -249,7 +249,7 @@
                 fade-out-time="1.0" />
 
                 <!-- new powerup-->
-        <new_item duration="5" force="250" speed-gain="15" max-speed-increase="15" fade-out-time="1.0"/>
+        <new_item duration="8" force="250" speed-gain="2.5" max-speed-increase="15" fade-out-time="0"/>
 
         <!-- Swatter
             duration: How long can the swatter be active.

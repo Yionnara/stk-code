@@ -50,16 +50,16 @@ struct  initAttachmentType {Attachment::AttachmentType attachment;
 
 static const initAttachmentType iat[]=
 {
-    {Attachment::ATTACH_PARACHUTE,        "parachute.spm",        "parachute-attach-icon.png"    },
-    {Attachment::ATTACH_NEWITEM_PROTECTION,            "parachute.spm",             "new_item-icon.png"          },
-    {Attachment::ATTACH_BOMB,             "bomb.spm",             "bomb-attach-icon.png"         },
-    {Attachment::ATTACH_ANVIL,            "anchor.spm",           "anchor-attach-icon.png"       },
-    {Attachment::ATTACH_SWATTER,          "swatter.spm",          "swatter-icon.png"             },
-    {Attachment::ATTACH_NOLOKS_SWATTER,   "swatter_nolok.spm",    "swatter-icon.png"             },
-    {Attachment::ATTACH_SWATTER_ANIM,     "swatter_anim.spm",     "swatter-icon.png"             },
-    {Attachment::ATTACH_BUBBLEGUM_SHIELD, "bubblegum_shield.spm", "shield-icon.png"              },
-    {Attachment::ATTACH_NOLOK_BUBBLEGUM_SHIELD, "bubblegum_shield_nolok.spm", "shield-icon.png"              },
-    {Attachment::ATTACH_MAX,              "",                     ""                             },
+    {Attachment::ATTACH_PARACHUTE,              "parachute.spm",             "parachute-attach-icon.png"    },
+    {Attachment::ATTACH_NEWITEM_PROTECTION,     "blue_flag.spm",             "new_item-icon.png"            },
+    {Attachment::ATTACH_BOMB,                   "bomb.spm",                  "bomb-attach-icon.png"         },
+    {Attachment::ATTACH_ANVIL,                  "anchor.spm",                "anchor-attach-icon.png"       },
+    {Attachment::ATTACH_SWATTER,                "swatter.spm",               "swatter-icon.png"             },
+    {Attachment::ATTACH_NOLOKS_SWATTER,         "swatter_nolok.spm",         "swatter-icon.png"             },
+    {Attachment::ATTACH_SWATTER_ANIM,           "swatter_anim.spm",          "swatter-icon.png"             },
+    {Attachment::ATTACH_BUBBLEGUM_SHIELD,       "bubblegum_shield.spm",      "shield-icon.png"              },
+    {Attachment::ATTACH_NOLOK_BUBBLEGUM_SHIELD, "bubblegum_shield_nolok.spm","shield-icon.png"              },
+    {Attachment::ATTACH_MAX,                    "",                          ""                             },
 };
 
 //-----------------------------------------------------------------------------
