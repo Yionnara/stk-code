@@ -181,10 +181,6 @@ void MainMenuScreen::init()
     if (quit)
         quit->setVisible(false);
 #endif
-
-    LabelWidget* labelWidget = getWidget<LabelWidget>("blog_link");
-    Screen::manualAddWidget(labelWidget);
-    Screen::addWidgets();
 }   // init
 
 // ----------------------------------------------------------------------------
