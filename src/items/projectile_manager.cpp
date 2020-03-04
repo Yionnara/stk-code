@@ -21,6 +21,7 @@
 #include "graphics/explosion.hpp"
 #include "graphics/hit_effect.hpp"
 #include "items/bowling.hpp"
+#include "items/new_item.hpp"//empty for now
 #include "items/cake.hpp"
 #include "items/plunger.hpp"
 #include "items/powerup_manager.hpp"
@@ -158,6 +159,10 @@ std::shared_ptr<Flyable>
         case PowerupManager::POWERUP_BOWLING:
             f = std::make_shared<Bowling>(kart);
             break;
+        //case for the new_item
+        case PowerupManager::POWERUP_NEWITEM:
+            f = std::make_shared<Bowling>(kart);
+            break;
         case PowerupManager::POWERUP_PLUNGER:
             f = std::make_shared<Plunger>(kart);
             break;
@@ -246,6 +251,12 @@ std::string ProjectileManager::getUniqueIdentity(AbstractKart* kart,
             uid.addUInt8(RN_BOWLING);
             break;
         }
+        case PowerupManager::POWERUP_NEWITEM:
+        {
+            uid.addUInt8(RN_NEWITEM);
+            break;
+        }
+        //case for the new_item
         case PowerupManager::POWERUP_PLUNGER:
         {
             uid.addUInt8(RN_PLUNGER);
@@ -283,7 +294,7 @@ std::shared_ptr<Rewinder>
 
     RewinderName rn = (RewinderName)data.getUInt8();
     if (!(rn == RN_BOWLING || rn == RN_PLUNGER ||
-        rn == RN_CAKE || rn == RN_RUBBERBALL))
+        rn == RN_CAKE || rn == RN_RUBBERBALL || RN_NEWITEM))
         return nullptr;
 
     AbstractKart* kart = World::getWorld()->getKart(data.getUInt8());
@@ -292,6 +303,11 @@ std::shared_ptr<Rewinder>
     switch (rn)
     {
         case RN_BOWLING:
+        {
+            f = std::make_shared<Bowling>(kart);
+            break;
+        }
+        case RN_NEWITEM:
         {
             f = std::make_shared<Bowling>(kart);
             break;

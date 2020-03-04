@@ -285,13 +285,26 @@ void Powerup::use()
         break ;
 //new power up
     case PowerupManager::POWERUP_NEWITEM:
-        m_kart->getAttachment()
+        /*m_kart->getAttachment()
                           ->set(Attachment::ATTACH_BUBBLEGUM_SHIELD,
                                 stk_config->
                                 time2Ticks(kp->getBubblegumShieldDuration()
-                                           + m_kart->getShieldTime()       ) );
+                                           + m_kart->getShieldTime()       ) );*/
+
+          //test ......Result NOTHING
+          if(stk_config->m_shield_restrict_weapons)
+              m_kart->setShieldTime(0.0f); // make weapon usage destroy the shield
+          if (!has_played_sound)
+              {
+                 Powerup::adjustSound();
+                 m_sound_use->play();
+              }
+           projectile_manager->newProjectile(m_kart, m_type);
+           //....
         m_kart->handleNewItem(NULL, true);
         break;
+
+        //-----------------------------------
     case PowerupManager::POWERUP_SWITCH:
         {
             ItemManager::get()->switchItems();

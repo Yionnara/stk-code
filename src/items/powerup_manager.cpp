@@ -494,6 +494,8 @@ void PowerupManager::loadPowerup(PowerupType type, const XMLNode &node)
     switch (type) {
         case POWERUP_BOWLING:
              Bowling::init(node, m_all_meshes[type]);    break;
+        case POWERUP_NEWITEM:
+             Bowling::init(node, m_all_meshes[type]);    break;
         case POWERUP_PLUNGER:
              Plunger::init(node, m_all_meshes[type]);    break;
         case POWERUP_CAKE:
@@ -608,7 +610,7 @@ PowerupManager::PowerupType PowerupManager::getRandomPowerup(unsigned int pos,
         stk_config->ticks2Time(World::getWorld()->getTicksSinceStart()) <
                                       stk_config->m_no_explosive_items_timeout)
     {
-        if (powerup == POWERUP_CAKE|| powerup == POWERUP_RUBBERBALL)
+        if (powerup == POWERUP_CAKE|| powerup == POWERUP_RUBBERBALL|| powerup == POWERUP_NEWITEM)
             powerup = POWERUP_BOWLING;
     }
     return (PowerupType)powerup;

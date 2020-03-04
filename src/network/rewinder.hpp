@@ -35,6 +35,7 @@ enum RewinderName : char
     RN_BLUE_FLAG = 0x04,
     RN_CAKE = 0x05,
     RN_BOWLING = 0x06,
+    RN_NEWITEM = 0x10,
     RN_PLUNGER = 0x07,
     RN_RUBBERBALL = 0x08,
     RN_PHYSICAL_OBJ = 0x09
