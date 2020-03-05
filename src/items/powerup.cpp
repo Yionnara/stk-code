@@ -172,7 +172,8 @@ void Powerup::set(PowerupManager::PowerupType type, int n)
             break ;
 
         case PowerupManager::POWERUP_NEWITEM:
-            m_sound_use = SFXManager::get()->createSoundSource("parachute");//New_Item type
+            //m_sound_use = SFXManager::get()->createSoundSource("parachute");//New_Item type
+            m_sound_use = SFXManager::get()->createSoundSource("bowling_shoot");
             break ;
 
         case PowerupManager::POWERUP_BOWLING:

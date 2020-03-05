@@ -253,7 +253,7 @@ std::string ProjectileManager::getUniqueIdentity(AbstractKart* kart,
         }
         case PowerupManager::POWERUP_NEWITEM:
         {
-            uid.addUInt8(RN_NEWITEM);
+            uid.addUInt8(RN_BOWLING);
             break;
         }
         //case for the new_item
@@ -294,7 +294,7 @@ std::shared_ptr<Rewinder>
 
     RewinderName rn = (RewinderName)data.getUInt8();
     if (!(rn == RN_BOWLING || rn == RN_PLUNGER ||
-        rn == RN_CAKE || rn == RN_RUBBERBALL || RN_NEWITEM))
+        rn == RN_CAKE || rn == RN_RUBBERBALL ))
         return nullptr;
 
     AbstractKart* kart = World::getWorld()->getKart(data.getUInt8());
@@ -303,11 +303,6 @@ std::shared_ptr<Rewinder>
     switch (rn)
     {
         case RN_BOWLING:
-        {
-            f = std::make_shared<Bowling>(kart);
-            break;
-        }
-        case RN_NEWITEM:
         {
             f = std::make_shared<Bowling>(kart);
             break;
